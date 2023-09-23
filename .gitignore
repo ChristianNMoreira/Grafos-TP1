@@ -1,0 +1,6 @@
+*.vscode
+grafos_txt
+*test*
+*.a
+*.o
+*.txt
