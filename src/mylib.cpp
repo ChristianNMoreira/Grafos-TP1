@@ -37,7 +37,7 @@ void Graph::SetGraph(std::string filepath) {
                 while (getline(ss, s, ' ')) {
                     (i == 0) ? i = stoi(s) : j = stoi(s);
                 }
-                M[i-1][j-1] = (char)1;
+                M[i-1][j-1] = '1';
                 i = 0;
             }
         }
