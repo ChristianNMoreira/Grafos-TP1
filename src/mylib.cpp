@@ -38,6 +38,7 @@ void Graph::SetGraph(std::string filepath) {
                     (i == 0) ? i = stoi(s) : j = stoi(s);
                 }
                 M[i-1][j-1] = '1';
+                M[j-1][i-1] = '1';
                 i = 0;
             }
         }
