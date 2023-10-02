@@ -139,6 +139,7 @@ void Graph::BFS(int initial) {
     mN[initial - 1].marked = '1';
     std::cout<<initial<<'\t';
     mN[initial - 1].level = 0;
+    std::cout<<0<<'\t';
     std::cout<<0<<'\n';
     Q.push(initial);
     while (Q.size() > 0) {
