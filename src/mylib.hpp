@@ -5,9 +5,9 @@
 
 class Graph {
 private:
-    char representation_type; // 'm' for adjacency matrix, 'v' for adjacency list
+    char representation_type; // 'm' for adjacency matrix, 'v' for adjacency vector
     std::vector<std::vector<int>> adjacency_matrix;
-    std::vector<std::vector<int>> adjacency_list;
+    std::vector<std::vector<int>> adjacency_vector;
 
 public:
     int num_vertices;

@@ -33,7 +33,7 @@ void Graph::SetGraph(std::string filepath) {
     }
 
     adjacency_matrix.resize(num_vertices, std::vector<int>(num_vertices, 0));
-    adjacency_list.resize(num_vertices);
+    adjacency_vector.resize(num_vertices);
 
     while (getline(graph_file, line)) {
         int i, j;
@@ -48,8 +48,8 @@ void Graph::SetGraph(std::string filepath) {
             adjacency_matrix[i - 1][j - 1] = 1;
             adjacency_matrix[j - 1][i - 1] = 1;
 
-            adjacency_list[i - 1].push_back(j);
-            adjacency_list[j - 1].push_back(i);
+            adjacency_vector[i - 1].push_back(j);
+            adjacency_vector[j - 1].push_back(i);
         } else {
             std::cerr << "Error: Vertex indices out of bounds in line: " << line << std::endl;
         }
@@ -60,18 +60,21 @@ void Graph::SetGraph(std::string filepath) {
 
 void Graph::CalculateGraphStats() {
     num_edges = 0;
-    min_degree = num_vertices;
+    min_degree = num_vertices; 
     max_degree = 0;
     avg_degree = 0.0;
     std::vector<int> degrees;
 
     for (int i = 0; i < num_vertices; i++) {
-        int degree = adjacency_list[i].size();
+        int degree = adjacency_vector[i].size();
         num_edges += degree;
         min_degree = std::min(min_degree, degree);
         max_degree = std::max(max_degree, degree);
         degrees.push_back(degree);
     }
+
+    // Corrigindo a contagem de arestas dividindo por 2
+    num_edges /= 2;
 
     if (!degrees.empty()) {
         std::sort(degrees.begin(), degrees.end());
@@ -109,11 +112,11 @@ void Graph::PrintRepresentation() {
             output_file << std::endl;
         }
     } else if (representation_type == 'v') {
-        output_file << "Adjacency List:" << std::endl;
+        output_file << "Adjacency Vector:" << std::endl;
         for (int i = 0; i < num_vertices; i++) {
             output_file << i + 1 << " -> ";
-            for (int j = 0; j < adjacency_list[i].size(); j++) {
-                output_file << adjacency_list[i][j] << ' ';
+            for (int j = 0; j < adjacency_vector[i].size(); j++) {
+                output_file << adjacency_vector[i][j] << ' ';
             }
             output_file << std::endl;
         }
