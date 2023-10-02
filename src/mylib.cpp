@@ -1,90 +1,126 @@
 #include "mylib.hpp"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <algorithm>
+#include <iomanip>
 
 Graph::Graph(std::string filepath, char rp) {
     representation_type = rp;
     SetGraph(filepath);
-};
+    CalculateGraphStats();
+}
 
 void Graph::SetGraph(std::string filepath) {
-    std::fstream graph_file;
+    std::ifstream graph_file(filepath);
+
+    if (!graph_file.is_open()) {
+        std::cerr << "Error: Unable to open the file: " << filepath << std::endl;
+        return;
+    }
+
     std::string line;
-    graph_file.open(filepath, std::ios::in);
-    if (graph_file.is_open()) {
-        if (getline(graph_file, line)) {
-            num_vertices = stoi(line);
-        }
+
+    // Read the number of vertices from the first line
+    if (getline(graph_file, line)) {
+        num_vertices = std::stoi(line);
+    } else {
+        std::cerr << "Error: Unable to read the number of vertices." << std::endl;
+        graph_file.close();
+        return;
     }
-    if (representation_type == 'm') {  // matriz de adjacência
-        static char** M = (char**)malloc(num_vertices * sizeof(char*));
-        matrix_pointer = M;
-        for (int k = 0; k < num_vertices; k++) {
-            M[k] = (char*)calloc(num_vertices, sizeof(char));
+
+    adjacency_matrix.resize(num_vertices, std::vector<int>(num_vertices, 0));
+    adjacency_list.resize(num_vertices);
+
+    while (getline(graph_file, line)) {
+        int i, j;
+        std::istringstream ss(line);
+
+        if (!(ss >> i >> j)) {
+            std::cerr << "Error: Unable to parse line: " << line << std::endl;
+            continue;
         }
 
-        if (graph_file.is_open()) {
-            std::string s;
-            int i = 0;
-            int j = 0;
-            while(getline(graph_file, line)) {
-                std::stringstream ss(line);
-                while (getline(ss, s, ' ')) {
-                    (i == 0) ? i = stoi(s) : j = stoi(s);
-                }
-                M[i-1][j-1] = '1';
-                M[j-1][i-1] = '1';
-                i = 0;
-            }
-        }
-    }
-    else {  // vetor de adjacência
-        static std::vector<int> *v = new std::vector<int>[num_vertices];
-        vector_pointer = v;
-        //static int** v = (int**)malloc(num_vertices * sizeof(std::vector<int>*));
+        if (i >= 1 && i <= num_vertices && j >= 1 && j <= num_vertices) {
+            adjacency_matrix[i - 1][j - 1] = 1;
+            adjacency_matrix[j - 1][i - 1] = 1;
 
-        if (graph_file.is_open()) {
-            std::string line;
-            std::string s;
-            int i = 0;
-            int j = 0;
-            while(getline(graph_file, line)) {
-                std::stringstream ss(line);
-                while (getline(ss, s, ' ')) {
-                    (i == 0) ? i = stoi(s) : j = stoi(s);
-                }
-                v[i-1].push_back(j);
-                v[j-1].push_back(i);
-                i = 0;
-            }
+            adjacency_list[i - 1].push_back(j);
+            adjacency_list[j - 1].push_back(i);
+        } else {
+            std::cerr << "Error: Vertex indices out of bounds in line: " << line << std::endl;
         }
     }
+
     graph_file.close();
 }
 
-void Graph::PrintRepresentation() {
-    if (representation_type == 'm') {
-        char** M = matrix_pointer;
-        for (int i = 0; i < num_vertices; i++) {
-            for (int j = 0; j < num_vertices; j++) {
-                std::cout<<M[i][j]<<'\t';
-            }
-            std::cout<<'\n';
-        }
+void Graph::CalculateGraphStats() {
+    num_edges = 0;
+    min_degree = num_vertices;
+    max_degree = 0;
+    avg_degree = 0.0;
+    std::vector<int> degrees;
+
+    for (int i = 0; i < num_vertices; i++) {
+        int degree = adjacency_list[i].size();
+        num_edges += degree;
+        min_degree = std::min(min_degree, degree);
+        max_degree = std::max(max_degree, degree);
+        degrees.push_back(degree);
     }
-    else {
-        std::vector<int> *v = vector_pointer;
-        for (int i = 0; i < num_vertices; i++) {
-            std::cout<<i+1<<'\n';
-            for (int j = 0; j < v[i].size(); j++) {
-                std::cout<<v[i][j]<<'\t';
-            }
-            std::cout<<'\n'<<'\n';
+
+    if (!degrees.empty()) {
+        std::sort(degrees.begin(), degrees.end());
+        int middle = num_vertices / 2;
+        if (num_vertices % 2 == 0) {
+            median_degree = (degrees[middle - 1] + degrees[middle]) / 2;
+        } else {
+            median_degree = degrees[middle];
         }
+        avg_degree = static_cast<double>(num_edges) / num_vertices;
     }
 }
+
+void Graph::PrintRepresentation() {
+    std::ofstream output_file("graph_output.txt");
+
+    if (!output_file.is_open()) {
+        std::cerr << "Error: Unable to create output file." << std::endl;
+        return;
+    }
+
+    output_file << "Number of vertices: " << num_vertices << std::endl;
+    output_file << "Number of edges: " << num_edges << std::endl;
+    output_file << "Minimum degree: " << min_degree << std::endl;
+    output_file << "Maximum degree: " << max_degree << std::endl;
+    output_file << "Average degree: " << std::fixed << std::setprecision(2) << avg_degree << std::endl;
+    output_file << "Median degree: " << median_degree << std::endl;
+
+    if (representation_type == 'm') {
+        output_file << "Adjacency Matrix:" << std::endl;
+        for (int i = 0; i < num_vertices; i++) {
+            for (int j = 0; j < num_vertices; j++) {
+                output_file << adjacency_matrix[i][j] << ' ';
+            }
+            output_file << std::endl;
+        }
+    } else if (representation_type == 'v') {
+        output_file << "Adjacency List:" << std::endl;
+        for (int i = 0; i < num_vertices; i++) {
+            output_file << i + 1 << " -> ";
+            for (int j = 0; j < adjacency_list[i].size(); j++) {
+                output_file << adjacency_list[i][j] << ' ';
+            }
+            output_file << std::endl;
+        }
+    } else {
+        output_file << "Error: Unknown representation type." << std::endl;
+    }
+
+    output_file.close();
+}
+
