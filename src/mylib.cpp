@@ -10,13 +10,6 @@
 #include <cstring>
 #include <iomanip>
 
-struct markedNode {
-    char marked = '0';
-    int level = 0;
-    int father = 0;
-};
-
-
 Graph::Graph(std::string filepath, char rp) {
     representation_type = rp;
     SetGraph(filepath);
@@ -182,20 +175,22 @@ void Graph::CalculateGraphStats() {
     output_file.close();
 }
 
-
-void Graph::BFS(int initial) {
+int Graph::BFS(int initial, bool export_file, int final, bool set_tree) {
     std::ofstream output_file("bfs.txt");
     std::queue<int> Q;
     int v;
-    struct markedNode mN[num_vertices];
+    int max_level = 0;
+    struct markedNode *mN = new markedNode[num_vertices];
     mN[initial - 1].marked = '1';
-    std::cout<<initial<<'\t';
-    output_file <<initial<<'\t';
     mN[initial - 1].level = 0;
-    std::cout<<0<<'\t';
-    output_file <<0<<'\t';
-    std::cout<<0<<'\n';
-    output_file <<0<<'\n';
+    if (export_file == 1) {
+        std::cout<<initial<<'\t';
+        output_file <<initial<<'\t';
+        std::cout<<0<<'\t';
+        output_file <<0<<'\t';
+        std::cout<<0<<'\n';
+        output_file <<0<<'\n';
+    }
     Q.push(initial);
     while (Q.size() > 0) {
         v = Q.front(); // v -> primeiro nó na fila Q
@@ -207,20 +202,27 @@ void Graph::BFS(int initial) {
                     // Nó w=(j+1) é vizinho de v
                     if (mN[j].marked != '1') {
                         Q.push(j + 1);
-                        std::cout<<(j+1)<<'\t';
-                        output_file <<(j+1)<<'\t';
                         mN[j].marked = '1';
                         mN[j].father = v;
-                        std::cout<<v<<'\t';
-                        output_file <<v<<'\t';
                         mN[j].level = mN[v-1].level + 1;
-                        std::cout<<mN[j].level<<'\n';
-                        output_file <<mN[j].level<<'\n';
+                        if (mN[j].level > max_level) max_level = mN[j].level;
+                        if (export_file == 1) {
+                            std::cout<<(j+1)<<'\t';
+                            output_file <<(j+1)<<'\t';
+                            std::cout<<v<<'\t';
+                            output_file <<v<<'\t';
+                            std::cout<<mN[j].level<<'\n';
+                            output_file <<mN[j].level<<'\n';
+                        }
+                        if (final == (j+1)) {
+                            output_file.close();
+                            if (set_tree == 1) tree = mN;
+                            else free(mN);
+                            return mN[j].level;
+                        }
                     }
-
                 }
             }
-
         }
         else {
             std::vector<int> *V = vector_pointer;
@@ -229,20 +231,32 @@ void Graph::BFS(int initial) {
                 // Nó w é vizinho de v
                 if (mN[w-1].marked != '1') {
                     Q.push(w);
-                    std::cout<<(w)<<'\t';
-                    output_file <<(w)<<'\t';
                     mN[w-1].marked = '1';
                     mN[w-1].father = v;
-                    std::cout<<v<<'\t';
-                    output_file <<v<<'\t';
                     mN[w-1].level = mN[v-1].level + 1;
-                    std::cout<<mN[w-1].level<<'\n';
-                    output_file <<mN[w-1].level<<'\n';
+                    if (mN[w-1].level > max_level) max_level = mN[w-1].level;
+                    if (export_file == 1) {
+                        std::cout<<(w)<<'\t';
+                        output_file <<(w)<<'\t';
+                        std::cout<<v<<'\t';
+                        output_file <<v<<'\t';
+                        std::cout<<mN[w-1].level<<'\n';
+                        output_file <<mN[w-1].level<<'\n';
+                    }
+                    if (final == w) {
+                        output_file.close();
+                        if (set_tree == 1) tree = mN;
+                        else free(mN);
+                        return mN[w-1].level;
+                    }
                 }
             }
         }
     }
     output_file.close();
+    if (set_tree == 1) tree = mN;
+    else free(mN);
+    return max_level;
 }
 
 void Graph::DFS(int initial) {
