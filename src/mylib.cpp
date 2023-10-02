@@ -5,6 +5,13 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <queue>
+
+struct markedNode {
+    char marked = '0';
+    int level;
+    int father;
+};
 
 
 Graph::Graph(std::string filepath, char rp) {
@@ -44,9 +51,8 @@ void Graph::SetGraph(std::string filepath) {
         }
     }
     else {  // vetor de adjacência
-        static std::vector<int> *v = new std::vector<int>[num_vertices];
-        vector_pointer = v;
-        //static int** v = (int**)malloc(num_vertices * sizeof(std::vector<int>*));
+        static std::vector<int> *V = new std::vector<int>[num_vertices];
+        vector_pointer = V;
 
         if (graph_file.is_open()) {
             std::string line;
@@ -58,8 +64,8 @@ void Graph::SetGraph(std::string filepath) {
                 while (getline(ss, s, ' ')) {
                     (i == 0) ? i = stoi(s) : j = stoi(s);
                 }
-                v[i-1].push_back(j);
-                v[j-1].push_back(i);
+                V[i-1].push_back(j);
+                V[j-1].push_back(i);
                 i = 0;
             }
         }
@@ -78,13 +84,53 @@ void Graph::PrintRepresentation() {
         }
     }
     else {
-        std::vector<int> *v = vector_pointer;
+        std::vector<int> *V = vector_pointer;
         for (int i = 0; i < num_vertices; i++) {
             std::cout<<i+1<<'\n';
-            for (int j = 0; j < v[i].size(); j++) {
-                std::cout<<v[i][j]<<'\t';
+            for (int j = 0; j < V[i].size(); j++) {
+                std::cout<<V[i][j]<<'\t';
             }
             std::cout<<'\n'<<'\n';
+        }
+    }
+}
+
+void Graph::BFS(int initial) {
+    std::queue<int> Q;
+    int v;
+    struct markedNode mN[num_vertices];
+    mN[initial - 1].marked = '1';
+    mN[initial - 1].level = 0;
+    Q.push(initial);
+    while (Q.size() > 0) {
+        v = Q.front(); // v -> primeiro nó na fila Q
+        Q.pop();
+        if (representation_type == 'm') {
+            char** M = matrix_pointer;
+            for (int j = 0; j < num_vertices; j++) {
+                if (M[v - 1][j] == '1') {
+                    // Nó w=(j+1) é vizinho de v
+                    if (mN[j].marked != '1') {
+                        Q.push(j + 1);
+                        mN[j].marked = '1';
+                        mN[j].father = v;
+                        mN[j].level = mN[v-1].level + 1;
+                    }
+                }
+            }
+
+        }
+        else {
+            std::vector<int> *V = vector_pointer;
+            for (int j = 0; j < V[v-1].size(); j++) {
+                // Nó w=(j+1) é vizinho de v
+                if (mN[j].marked != '1') {
+                    Q.push(j + 1);
+                    mN[j].marked = '1';
+                    mN[j].father = v;
+                    mN[j].level = mN[v-1].level + 1;
+                }
+            }
         }
     }
 }

@@ -18,4 +18,6 @@ class Graph {
 
         void SetGraph(std::string filepath);
         void PrintRepresentation();
+
+        void BFS(int initial);
 };
