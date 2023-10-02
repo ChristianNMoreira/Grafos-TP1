@@ -19,6 +19,8 @@ class Graph {
         void SetGraph(std::string filepath);
         void PrintRepresentation();
 
+        void CalculateGraphStats();
+
         void BFS(int initial);
         void DFS(int initial);
 };

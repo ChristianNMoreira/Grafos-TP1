@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <algorithm>
 
 struct markedNode {
     char marked = '0';
@@ -91,6 +92,42 @@ void Graph::PrintRepresentation() {
                 std::cout<<V[i][j]<<'\t';
             }
             std::cout<<'\n'<<'\n';
+        }
+    }
+}
+
+void Graph::CalculateGraphStats() {
+    num_edges = 0;
+    min_degree = num_vertices; 
+    max_degree = 0;
+    avg_degree = 0.0;
+    std::vector<int> degrees;
+
+    if (representation_type== 'm') {
+        char** M = matrix_pointer;
+    }
+    else {
+        std::vector<int> *V = vector_pointer;
+        for (int i = 0; i < num_vertices; i++) {
+            int degree = V[i].size();
+            num_edges += degree;
+            min_degree = std::min(min_degree, degree);
+            max_degree = std::max(max_degree, degree);
+            degrees.push_back(degree);
+        }
+
+        // Corrigindo a contagem de arestas dividindo por 2
+        num_edges /= 2;
+
+        if (!degrees.empty()) {
+            std::sort(degrees.begin(), degrees.end());
+            int middle = num_vertices / 2;
+            if (num_vertices % 2 == 0) {
+                median_degree = (degrees[middle - 1] + degrees[middle]) / 2;
+            } else {
+                median_degree = degrees[middle];
+            }
+            avg_degree = static_cast<double>(num_edges) / num_vertices;
         }
     }
 }
