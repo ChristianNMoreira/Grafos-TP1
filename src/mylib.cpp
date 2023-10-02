@@ -89,16 +89,18 @@ void Graph::PrintRepresentation() {
     else {
         std::vector<int> *V = vector_pointer;
         for (int i = 0; i < num_vertices; i++) {
-            std::cout<<i+1<<'\n';
+            std::cout<<i+1<<" -> ";
             for (int j = 0; j < V[i].size(); j++) {
-                std::cout<<V[i][j]<<'\t';
+                std::cout<<V[i][j]<<' ';
             }
             std::cout<<'\n'<<'\n';
         }
     }
+    
 }
 
 void Graph::CalculateGraphStats() {
+    
     num_edges = 0;
     min_degree = num_vertices; 
     max_degree = 0;
@@ -132,17 +134,33 @@ void Graph::CalculateGraphStats() {
             avg_degree = static_cast<double>(num_edges) / num_vertices;
         }
     }
+    std::ofstream output_file("graph_output.txt");
+    
+    output_file << "Vértices: " << num_vertices << std::endl;
+    output_file << "Arestas: " << num_edges << std::endl;
+    output_file << "Grau mínimo: " << min_degree << std::endl;
+    output_file << "Grau máximo: " << max_degree << std::endl;
+    //output_file << "Grau médio: " << std::fixed << std::setprecision(2) << avg_degree << std::endl;
+    output_file << "Mediana de Grau: " << median_degree << std::endl;
+    output_file.close();
+
 }
 
 void Graph::BFS(int initial) {
+    std::ofstream output_file("bfs.txt");
+
+    
     std::queue<int> Q;
     int v;
     struct markedNode mN[num_vertices];
     mN[initial - 1].marked = '1';
     std::cout<<initial<<'\t';
+    output_file <<initial<<'\t';
     mN[initial - 1].level = 0;
     std::cout<<0<<'\t';
+    output_file <<0<<'\t';
     std::cout<<0<<'\n';
+    output_file <<0<<'\n';
     Q.push(initial);
     while (Q.size() > 0) {
         v = Q.front(); // v -> primeiro nó na fila Q
@@ -155,12 +173,16 @@ void Graph::BFS(int initial) {
                     if (mN[j].marked != '1') {
                         Q.push(j + 1);
                         std::cout<<(j+1)<<'\t';
+                        output_file <<(j+1)<<'\t';
                         mN[j].marked = '1';
                         mN[j].father = v;
                         std::cout<<v<<'\t';
+                        output_file <<v<<'\t';
                         mN[j].level = mN[v-1].level + 1;
                         std::cout<<mN[j].level<<'\n';
+                        output_file <<mN[j].level<<'\n';
                     }
+
                 }
             }
 
@@ -173,18 +195,23 @@ void Graph::BFS(int initial) {
                 if (mN[w-1].marked != '1') {
                     Q.push(w);
                     std::cout<<(w)<<'\t';
+                    output_file <<(w)<<'\t';
                     mN[w-1].marked = '1';
                     mN[w-1].father = v;
                     std::cout<<v<<'\t';
+                    output_file <<v<<'\t';
                     mN[w-1].level = mN[v-1].level + 1;
                     std::cout<<mN[w-1].level<<'\n';
+                    output_file <<mN[w-1].level<<'\n';
                 }
             }
         }
     }
+    output_file.close();
 }
 
 void Graph::DFS(int initial) {
+    std::ofstream output_file("dfs.txt");
     std::vector<int> P;
     int v;
     struct markedNode mN[num_vertices];
@@ -195,8 +222,11 @@ void Graph::DFS(int initial) {
         if (mN[v-1].marked != '1') {
             mN[v-1].marked = '1';
             std::cout << v << '\t';
+            output_file << v << '\t';
             std::cout << mN[v-1].father << '\t';
+            output_file << mN[v-1].father << '\t';
             std::cout << mN[v-1].level << '\n';
+            output_file << mN[v-1].level << '\n';
             if (representation_type == 'm') {
                 char** M = matrix_pointer;
                 for (int j = 0; j < num_vertices; j++) {
