@@ -100,7 +100,9 @@ void Graph::BFS(int initial) {
     int v;
     struct markedNode mN[num_vertices];
     mN[initial - 1].marked = '1';
+    std::cout<<initial<<'\t';
     mN[initial - 1].level = 0;
+    std::cout<<0<<'\n';
     Q.push(initial);
     while (Q.size() > 0) {
         v = Q.front(); // v -> primeiro nó na fila Q
@@ -112,9 +114,12 @@ void Graph::BFS(int initial) {
                     // Nó w=(j+1) é vizinho de v
                     if (mN[j].marked != '1') {
                         Q.push(j + 1);
+                        std::cout<<(j+1)<<'\t';
                         mN[j].marked = '1';
                         mN[j].father = v;
+                        std::cout<<v<<'\t';
                         mN[j].level = mN[v-1].level + 1;
+                        std::cout<<mN[j].level<<'\n';
                     }
                 }
             }
@@ -123,12 +128,16 @@ void Graph::BFS(int initial) {
         else {
             std::vector<int> *V = vector_pointer;
             for (int j = 0; j < V[v-1].size(); j++) {
-                // Nó w=(j+1) é vizinho de v
-                if (mN[j].marked != '1') {
-                    Q.push(j + 1);
-                    mN[j].marked = '1';
-                    mN[j].father = v;
-                    mN[j].level = mN[v-1].level + 1;
+                int w = V[v-1][j];
+                // Nó w é vizinho de v
+                if (mN[w-1].marked != '1') {
+                    Q.push(w);
+                    std::cout<<(w)<<'\t';
+                    mN[w-1].marked = '1';
+                    mN[w-1].father = v;
+                    std::cout<<v<<'\t';
+                    mN[w-1].level = mN[v-1].level + 1;
+                    std::cout<<mN[w-1].level<<'\n';
                 }
             }
         }
