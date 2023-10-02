@@ -127,3 +127,39 @@ void Graph::PrintRepresentation() {
     output_file.close();
 }
 
+void Graph::DepthFirstSearch(int start_vertex) {
+    dfs_tree.resize(num_vertices);
+    std::vector<bool> visited(num_vertices, false); // Vector para controlar os vértices visitados
+    DFS(start_vertex, -1, 0, visited); // Chame a função de busca em profundidade
+}
+
+void Graph::DFS(int v, int parent, int level, std::vector<bool>& visited) {
+    // Marque o vértice como visitado e registre o pai e o nível
+    visited[v] = true;
+    dfs_tree[v].parent = parent;
+    dfs_tree[v].level = level;
+
+    // Recorra pelos vizinhos do vértice
+    for (int neighbor : adjacency_vector[v]) {
+        if (!visited[neighbor]) { // Verifique se o vizinho não foi visitado ainda
+            DFS(neighbor, v, level + 1, visited);
+        }
+    }
+}
+
+
+
+
+void Graph::PrintDFSResult() {
+    std::ofstream output_file("dfs_tree_output.txt");
+    if (!output_file.is_open()) {
+        std::cerr << "Error: Unable to create output file." << std::endl;
+        return;
+    }
+
+    for (int i = 0; i < num_vertices; i++) {
+        output_file << "Vertex " << i + 1 << ": Parent = " << dfs_tree[i].parent << ", Level = " << dfs_tree[i].level << std::endl;
+    }
+
+    output_file.close();
+}
