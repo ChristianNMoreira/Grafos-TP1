@@ -9,8 +9,8 @@
 
 struct markedNode {
     char marked = '0';
-    int level;
-    int father;
+    int level = 0;
+    int father = 0;
 };
 
 
@@ -138,6 +138,44 @@ void Graph::BFS(int initial) {
                     std::cout<<v<<'\t';
                     mN[w-1].level = mN[v-1].level + 1;
                     std::cout<<mN[w-1].level<<'\n';
+                }
+            }
+        }
+    }
+}
+
+void Graph::DFS(int initial) {
+    std::vector<int> P;
+    int v;
+    struct markedNode mN[num_vertices];
+    P.push_back(initial);
+    while (P.size() > 0) {
+        v = P.back(); // v -> último nó no vetor P, funcionando como pilha
+        P.pop_back();
+        if (mN[v-1].marked != '1') {
+            mN[v-1].marked = '1';
+            std::cout << v << '\t';
+            std::cout << mN[v-1].father << '\t';
+            std::cout << mN[v-1].level << '\n';
+            if (representation_type == 'm') {
+                char** M = matrix_pointer;
+                for (int j = 0; j < num_vertices; j++) {
+                    if (M[v - 1][j] == '1') {
+                        // Nó w=(j+1) é vizinho de v
+                        P.push_back(j+1);
+                        mN[j].father = v;
+                        mN[j].level = mN[v-1].level + 1;
+                    }
+                }
+            }
+            else {
+                std::vector<int> *V = vector_pointer;
+                for (int j = 0; j < V[v-1].size(); j++) {
+                    int w = V[v-1][j];
+                    // Nó w é vizinho de v
+                    P.push_back(w);
+                    mN[w-1].father = v;
+                    mN[w-1].level = mN[v-1].level + 1;
                 }
             }
         }

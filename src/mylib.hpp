@@ -20,4 +20,5 @@ class Graph {
         void PrintRepresentation();
 
         void BFS(int initial);
+        void DFS(int initial);
 };
