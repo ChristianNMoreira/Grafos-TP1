@@ -7,6 +7,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <cstring>
 
 struct markedNode {
     char marked = '0';
@@ -33,7 +34,8 @@ void Graph::SetGraph(std::string filepath) {
         static char** M = (char**)malloc(num_vertices * sizeof(char*));
         matrix_pointer = M;
         for (int k = 0; k < num_vertices; k++) {
-            M[k] = (char*)calloc(num_vertices, sizeof(char));
+            M[k] = (char*)malloc(num_vertices * sizeof(char));
+            std::memset(M[k], '0', num_vertices * sizeof(char));
         }
 
         if (graph_file.is_open()) {
