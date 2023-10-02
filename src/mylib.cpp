@@ -8,6 +8,7 @@
 #include <queue>
 #include <algorithm>
 #include <cstring>
+#include <iomanip>
 
 struct markedNode {
     char marked = '0';
@@ -100,56 +101,90 @@ void Graph::PrintRepresentation() {
 }
 
 void Graph::CalculateGraphStats() {
-    
     num_edges = 0;
-    min_degree = num_vertices; 
+    min_degree = num_vertices;
     max_degree = 0;
     avg_degree = 0.0;
-    std::vector<int> degrees;
+    median_degree = 0;
 
-    if (representation_type== 'm') {
+    if (representation_type == 'm') {
         char** M = matrix_pointer;
-    }
-    else {
+        for (int i = 0; i < num_vertices; i++) {
+            for (int j = 0; j < num_vertices; j++) {
+                if (M[i][j] == '1') {
+                    num_edges++;
+                }
+            }
+            int degree = 0;
+            for (int j = 0; j < num_vertices; j++) {
+                if (M[i][j] == '1') {
+                    degree++;
+                }
+            }
+            min_degree = std::min(min_degree, degree);
+            max_degree = std::max(max_degree, degree);
+        }
+        num_edges /= 2;  // Dividir por 2, pois cada aresta foi contada duas vezes.
+    } else {
         std::vector<int> *V = vector_pointer;
         for (int i = 0; i < num_vertices; i++) {
             int degree = V[i].size();
             num_edges += degree;
             min_degree = std::min(min_degree, degree);
             max_degree = std::max(max_degree, degree);
+        }
+        num_edges /= 2;  // Dividir por 2, pois cada aresta foi contada duas vezes.
+    }
+
+    if (num_vertices > 0) {
+        avg_degree = static_cast<double>(num_edges) / num_vertices;
+    }
+
+    // Agora, calcule a mediana (para ambos os casos)
+    std::vector<int> degrees;
+    if (representation_type == 'm') {
+        char** M = matrix_pointer;
+        for (int i = 0; i < num_vertices; i++) {
+            int degree = 0;
+            for (int j = 0; j < num_vertices; j++) {
+                if (M[i][j] == '1') {
+                    degree++;
+                }
+            }
             degrees.push_back(degree);
         }
-
-        // Corrigindo a contagem de arestas dividindo por 2
-        num_edges /= 2;
-
-        if (!degrees.empty()) {
-            std::sort(degrees.begin(), degrees.end());
-            int middle = num_vertices / 2;
-            if (num_vertices % 2 == 0) {
-                median_degree = (degrees[middle - 1] + degrees[middle]) / 2;
-            } else {
-                median_degree = degrees[middle];
-            }
-            avg_degree = static_cast<double>(num_edges) / num_vertices;
+    } else {
+        std::vector<int> *V = vector_pointer;
+        for (int i = 0; i < num_vertices; i++) {
+            int degree = V[i].size();
+            degrees.push_back(degree);
         }
     }
+
+    if (!degrees.empty()) {
+        std::sort(degrees.begin(), degrees.end());
+        int middle = num_vertices / 2;
+        if (num_vertices % 2 == 0) {
+            median_degree = (degrees[middle - 1] + degrees[middle]) / 2;
+        } else {
+            median_degree = degrees[middle];
+        }
+    }
+
     std::ofstream output_file("graph_output.txt");
-    
     output_file << "Vértices: " << num_vertices << std::endl;
     output_file << "Arestas: " << num_edges << std::endl;
     output_file << "Grau mínimo: " << min_degree << std::endl;
     output_file << "Grau máximo: " << max_degree << std::endl;
-    //output_file << "Grau médio: " << std::fixed << std::setprecision(2) << avg_degree << std::endl;
+    output_file << "Grau médio: " << std::fixed << std::setprecision(2) << static_cast<double>(2 * num_edges) / num_vertices << std::endl;
+
     output_file << "Mediana de Grau: " << median_degree << std::endl;
     output_file.close();
-
 }
+
 
 void Graph::BFS(int initial) {
     std::ofstream output_file("bfs.txt");
-
-    
     std::queue<int> Q;
     int v;
     struct markedNode mN[num_vertices];
