@@ -304,6 +304,10 @@ void Graph::DFS(int initial) {
     }
 }
 
+int Graph::Distance(int initial, int final) {
+    return BFS(initial, 0, final, 0, 0);
+}
+
 void Graph::ConnectedComponents() {
     std::ofstream output_file("connected_components.txt");
     char *marked = (char*)malloc(num_vertices * sizeof(char));
