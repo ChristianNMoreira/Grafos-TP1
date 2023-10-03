@@ -32,5 +32,6 @@ class Graph {
         int BFS(int initial, bool export_file=1, int final=0, bool set_tree=0, bool update_array=0);
         void DFS(int initial);
 
+        int Distance(int initial, int final);
         void ConnectedComponents();
 };
