@@ -13,6 +13,7 @@ class Graph {
         char** matrix_pointer;
         std::vector<int>* vector_pointer;
         markedNode *tree;
+        char* markedArray;
     public:
         int num_vertices;
         int num_edges;
@@ -28,6 +29,8 @@ class Graph {
 
         void CalculateGraphStats();
 
-        int BFS(int initial, bool export_file=1, int final=0, bool set_tree=0);
+        int BFS(int initial, bool export_file=1, int final=0, bool set_tree=0, bool update_array=0);
         void DFS(int initial);
+
+        void ConnectedComponents();
 };

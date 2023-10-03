@@ -175,13 +175,14 @@ void Graph::CalculateGraphStats() {
     output_file.close();
 }
 
-int Graph::BFS(int initial, bool export_file, int final, bool set_tree) {
+int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool update_array) {
     std::ofstream output_file("bfs.txt");
     std::queue<int> Q;
     int v;
     int max_level = 0;
     struct markedNode *mN = new markedNode[num_vertices];
     mN[initial - 1].marked = '1';
+    if (update_array == 1) markedArray[initial - 1] = '1';
     mN[initial - 1].level = 0;
     if (export_file == 1) {
         std::cout<<initial<<'\t';
@@ -203,6 +204,7 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree) {
                     if (mN[j].marked != '1') {
                         Q.push(j + 1);
                         mN[j].marked = '1';
+                        if (update_array == 1) markedArray[j] = '1';
                         mN[j].father = v;
                         mN[j].level = mN[v-1].level + 1;
                         if (mN[j].level > max_level) max_level = mN[j].level;
@@ -232,6 +234,7 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree) {
                 if (mN[w-1].marked != '1') {
                     Q.push(w);
                     mN[w-1].marked = '1';
+                    if (update_array == 1) markedArray[w-1] = '1';
                     mN[w-1].father = v;
                     mN[w-1].level = mN[v-1].level + 1;
                     if (mN[w-1].level > max_level) max_level = mN[w-1].level;
@@ -299,4 +302,28 @@ void Graph::DFS(int initial) {
             }
         }
     }
+}
+
+void Graph::ConnectedComponents() {
+    std::ofstream output_file("connected_components.txt");
+    char *marked = (char*)malloc(num_vertices * sizeof(char));
+    std::memset(marked, '0', num_vertices * sizeof(char));
+    markedArray = marked;
+
+    int initial = 0;
+    int iter = 0;
+    while (iter < num_vertices) {
+        if (markedArray[iter] == '0') {
+            initial = iter+1;
+            BFS(initial, 0, 0, 1, 1);
+            for (int i = 0; i < num_vertices; i++) {
+                if (tree[i].marked == '1') output_file <<i+1<<',';
+            }
+            output_file <<'\n'<<'\n';
+        }
+        iter += 1;
+    }
+
+    free(marked);
+    output_file.close();
 }
