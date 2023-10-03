@@ -2,7 +2,7 @@
 
 # Passos execução
 
-Em qualquer código (assumindo ser um arquivo chamado `test.cpp` fora da pasta `src`).
+Em qualquer código (assumindo ser um arquivo chamado `main.cpp` fora da pasta `src`).
 
 ```
 .
@@ -10,7 +10,7 @@ Em qualquer código (assumindo ser um arquivo chamado `test.cpp` fora da pasta `
 ├── src
 │   ├── mylib.cpp
 │   └── mylib.hpp
-├── test.cpp
+├── main.cpp
 ```
 
 ## 1. Compilar arquivos biblioteca
@@ -29,6 +29,6 @@ Incluir a biblioteca no arquivo a ser executado:
 ```
 Então, compilar:
 ```bash
-g++ -c test.cpp -o test.o
-g++ -o test test.o -L. mylib.o
+g++ -c main.cpp -o main.o
+g++ -o main test.o -L. mylib.o
 ```
