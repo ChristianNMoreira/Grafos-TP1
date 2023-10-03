@@ -30,5 +30,5 @@ Incluir a biblioteca no arquivo a ser executado:
 Então, compilar:
 ```bash
 g++ -c main.cpp -o main.o
-g++ -o main test.o -L. mylib.o
+g++ -o main main.o -L. mylib.o
 ```
