@@ -316,18 +316,32 @@ void Graph::ConnectedComponents() {
 
     int initial = 0;
     int iter = 0;
+    int min_concomp = num_vertices;
+    int max_concomp = 0;
+    int num_concomp = 0;
+    int n = 0;
     while (iter < num_vertices) {
         if (markedArray[iter] == '0') {
             initial = iter+1;
             BFS(initial, 0, 0, 1, 1);
             for (int i = 0; i < num_vertices; i++) {
-                if (tree[i].marked == '1') output_file <<i+1<<',';
+                if (tree[i].marked == '1') {
+                    output_file <<i+1<<',';
+                    n += 1;
+                }
             }
+            num_concomp += 1;
             output_file <<'\n'<<'\n';
+            if (min_concomp > n) min_concomp = n;
+            if (max_concomp < n) max_concomp = n;
         }
+        n=0;
         iter += 1;
     }
 
+    std::cout << "min: " << min_concomp;
+    std::cout << " max: " << max_concomp;
+    std::cout << " num: " << num_concomp;
     free(marked);
     output_file.close();
 }
