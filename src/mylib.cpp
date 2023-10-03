@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cstring>
 #include <iomanip>
+#include <cstdlib> 
+#include <ctime>  
 
 Graph::Graph(std::string filepath, char rp) {
     representation_type = rp;
@@ -345,3 +347,35 @@ void Graph::ConnectedComponents() {
     free(marked);
     output_file.close();
 }
+ 
+void Graph::Diametro() {
+    int maxDiameter = -1;
+    int bfs_limit;
+
+    if (num_vertices < 5000)
+        bfs_limit = num_vertices;
+    else
+        bfs_limit = 5000;
+
+    // Initialize random seed if needed
+    if (num_vertices > 5000)
+        std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    for (int i = 1; i <= bfs_limit; i++) {
+        int start_vertex;
+
+        if (num_vertices > 5000)
+            start_vertex = std::rand() % num_vertices;
+        else
+            start_vertex = i;
+
+        int max_level = BFS(start_vertex, false, 0, false, false);
+        
+        if (max_level > maxDiameter) {
+            maxDiameter = max_level;
+        }
+    }
+
+    std::cout << "Diameter: " << maxDiameter << std::endl;
+}
+

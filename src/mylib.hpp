@@ -26,7 +26,7 @@ class Graph {
 
         void SetGraph(std::string filepath);
         void PrintRepresentation();
-
+        void Diametro();
         void CalculateGraphStats();
 
         int BFS(int initial, bool export_file=1, int final=0, bool set_tree=0, bool update_array=0);
