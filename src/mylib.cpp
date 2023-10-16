@@ -379,3 +379,12 @@ void Graph::Diametro() {
     std::cout << "Diameter: " << maxDiameter << std::endl;
 }
 
+void Graph::freeAll() {
+    for (int i = 0; i < num_vertices; i++) {
+        free(matrix_pointer[i]);
+    }
+    free(matrix_pointer);
+    free(vector_pointer);
+    free(tree);
+    free(markedArray);
+}

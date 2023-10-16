@@ -34,4 +34,6 @@ class Graph {
 
         int Distance(int initial, int final);
         void ConnectedComponents();
+
+        void freeAll();
 };

@@ -11,6 +11,7 @@ int main() {
     //my_graph.Distance(1, 2);
     //my_graph.PrintRepresentation();
     my_graph.Diametro();
-  
+
+    my_graph.freeAll();
     return 0;
 }
