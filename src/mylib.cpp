@@ -221,7 +221,7 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
                         if (final == (j+1)) {
                             output_file.close();
                             if (set_tree == 1) tree = mN;
-                            else free(mN);
+                            else delete[] mN;
                             return mN[j].level;
                         }
                     }
@@ -251,7 +251,7 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
                     if (final == w) {
                         output_file.close();
                         if (set_tree == 1) tree = mN;
-                        else free(mN);
+                        else delete[] mN;
                         return mN[w-1].level;
                     }
                 }
@@ -260,7 +260,7 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
     }
     output_file.close();
     if (set_tree == 1) tree = mN;
-    else free(mN);
+    else delete[] mN;
     return max_level;
 }
 
@@ -385,6 +385,7 @@ void Graph::freeAll() {
     }
     free(matrix_pointer);
     free(vector_pointer);
-    free(tree);
+    delete[] vector_pointer;
+    delete[] tree;
     free(markedArray);
 }
