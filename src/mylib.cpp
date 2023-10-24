@@ -9,11 +9,19 @@
 #include <algorithm>
 #include <cstring>
 #include <iomanip>
-#include <cstdlib> 
-#include <ctime>  
+#include <cstdlib>
+#include <ctime>
+#include <utility>
 
-Graph::Graph(std::string filepath, char rp) {
-    representation_type = rp;
+Graph::Graph(std::string filepath, char rp, bool w) {
+    if (w == 1) {
+        representation_type = 'v';
+        weighted = true;
+    }
+    else {
+        representation_type = rp;
+        weighted = false;
+    }
     SetGraph(filepath);
 };
 
@@ -50,22 +58,44 @@ void Graph::SetGraph(std::string filepath) {
         }
     }
     else {  // vetor de adjacência
-        static std::vector<int> *V = new std::vector<int>[num_vertices];
-        vector_pointer = V;
-
-        if (graph_file.is_open()) {
-            std::string line;
-            std::string s;
-            int i = 0;
-            int j = 0;
-            while(getline(graph_file, line)) {
-                std::stringstream ss(line);
-                while (getline(ss, s, ' ')) {
-                    (i == 0) ? i = stoi(s) : j = stoi(s);
+        if (weighted == 1) {
+            static std::vector<std::pair<int,float>> *V = new std::vector<std::pair<int,float>>[num_vertices];
+            w_vector_pointer = V;
+            if (graph_file.is_open()) {
+                std::string line;
+                std::string s;
+                int i = 0;
+                int j = 0;
+                float k = 0.0;
+                while(getline(graph_file, line)) {
+                    std::stringstream ss(line);
+                    while (getline(ss, s, ' ')) {
+                        (i == 0) ? i = stoi(s) : (j == 0) ? j = stoi(s) : k = stof(s);
+                    }
+                    V[i-1].push_back(std::make_pair(j, k));
+                    V[j-1].push_back(std::make_pair(i, k));
+                    i = 0;
+                    j = 0;
                 }
-                V[i-1].push_back(j);
-                V[j-1].push_back(i);
-                i = 0;
+            }
+        }
+        else {
+            static std::vector<int> *V = new std::vector<int>[num_vertices];
+            vector_pointer = V;
+            if (graph_file.is_open()) {
+                std::string line;
+                std::string s;
+                int i = 0;
+                int j = 0;
+                while(getline(graph_file, line)) {
+                    std::stringstream ss(line);
+                    while (getline(ss, s, ' ')) {
+                        (i == 0) ? i = stoi(s) : j = stoi(s);
+                    }
+                    V[i-1].push_back(j);
+                    V[j-1].push_back(i);
+                    i = 0;
+                }
             }
         }
     }
@@ -83,13 +113,26 @@ void Graph::PrintRepresentation() {
         }
     }
     else {
-        std::vector<int> *V = vector_pointer;
-        for (int i = 0; i < num_vertices; i++) {
-            std::cout<<i+1<<" -> ";
-            for (int j = 0; j < V[i].size(); j++) {
-                std::cout<<V[i][j]<<' ';
+        if (weighted == 1) {
+            std::vector<std::pair<int, float>> *V = w_vector_pointer;
+            for (int i = 0; i < num_vertices; i++) {
+                std::cout<<i+1<<" -> ";
+                for (int j = 0; j < V[i].size(); j++) {
+                    std::cout<<V[i][j].first<<"(";
+                    std::cout<<V[i][j].second<<") ";
+                }
+                std::cout<<'\n'<<'\n';
             }
-            std::cout<<'\n'<<'\n';
+        }
+        else {
+            std::vector<int> *V = vector_pointer;
+            for (int i = 0; i < num_vertices; i++) {
+                std::cout<<i+1<<" -> ";
+                for (int j = 0; j < V[i].size(); j++) {
+                    std::cout<<V[i][j]<<' ';
+                }
+                std::cout<<'\n'<<'\n';
+            }
         }
     }
     
@@ -380,12 +423,16 @@ void Graph::Diametro() {
 }
 
 void Graph::freeAll() {
-    for (int i = 0; i < num_vertices; i++) {
-        free(matrix_pointer[i]);
+    if (representation_type == 'm') {
+        for (int i = 0; i < num_vertices; i++) {
+            free(matrix_pointer[i]);
+        }
+        free(matrix_pointer);
     }
-    free(matrix_pointer);
-    free(vector_pointer);
-    delete[] vector_pointer;
+    if (representation_type == 'v') {
+        if (weighted) delete[] w_vector_pointer;
+        else free(vector_pointer);
+    }
     delete[] tree;
     free(markedArray);
 }

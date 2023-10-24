@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <utility>
 
 struct markedNode {
     char marked = '0';
@@ -10,8 +11,10 @@ struct markedNode {
 class Graph {
     private:
         char representation_type; // "m" -> matriz de adjacência; "v" -> vetor de adjacência
+        bool weighted; 
         char** matrix_pointer;
         std::vector<int>* vector_pointer;
+        std::vector<std::pair<int,float>>* w_vector_pointer;
         markedNode *tree;
         char* markedArray;
     public:
@@ -22,7 +25,7 @@ class Graph {
         int avg_degree;
         int median_degree;
 
-        Graph(std::string filepath, char rp);
+        Graph(std::string filepath, char rp='v', bool w=0);
 
         void SetGraph(std::string filepath);
         void PrintRepresentation();
