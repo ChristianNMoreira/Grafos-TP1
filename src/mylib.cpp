@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <utility>
+#include <limits>
 
 Graph::Graph(std::string filepath, char rp, bool w) {
     if (w == 1) {
@@ -388,6 +389,7 @@ void Graph::ConnectedComponents() {
     std::cout << " max: " << max_concomp;
     std::cout << " num: " << num_concomp;
     free(marked);
+    delete[] tree;
     output_file.close();
 }
  
@@ -422,6 +424,28 @@ void Graph::Diametro() {
     std::cout << "Diameter: " << maxDiameter << std::endl;
 }
 
+void Graph::Djikstra(int initial, bool heap) {
+    std::vector<std::pair<int, float>> *V = w_vector_pointer;
+    float dist[num_vertices];
+    int pai[num_vertices];
+    bool S[num_vertices];
+    for (int i = 0; i < num_vertices; i++) {
+        S[i] = false;
+        dist[i] = std::numeric_limits<float>::infinity();
+    }
+    dist[initial] = 0;
+    while (! std::all_of(S, S + (sizeof(S)/sizeof(S[0])), [](bool elem) {return elem;})) {
+        int u = minDistance(dist, S);
+        S[u] = true;
+        for (int j = 0; j < V[u].size(); j++) {
+            int v = V[u][j].first;
+            float w = V[u][j].second;
+            // Nó v é vizinho de (u+1)
+            if (dist[(v-1)] > dist[u] + w) dist[(v-1)] > dist[u] + w;
+        }
+    }
+}
+
 void Graph::freeAll() {
     if (representation_type == 'm') {
         for (int i = 0; i < num_vertices; i++) {
@@ -433,6 +457,16 @@ void Graph::freeAll() {
         if (weighted) delete[] w_vector_pointer;
         else free(vector_pointer);
     }
-    delete[] tree;
     free(markedArray);
+}
+
+int minDistance(float dist[], bool S[]){ 
+    float min = std::numeric_limits<float>::infinity();
+    int min_i;
+    for (int i = 0; i < (sizeof(dist)/sizeof(dist[0])); i++) {
+        if (S[i] == false && dist[i] <= min)
+            min = dist[i];
+            min_i = i;
+    }
+    return min_i;
 }

@@ -38,5 +38,7 @@ class Graph {
         int Distance(int initial, int final);
         void ConnectedComponents();
 
+        void Djikstra(int initial, bool heap=false);
+
         void freeAll();
 };
