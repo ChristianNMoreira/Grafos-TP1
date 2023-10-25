@@ -439,6 +439,8 @@ int minDistance(float dist[], bool S[], int num_vertices){
 void Graph::Djikstra(int initial, bool heap) {
     std::ofstream output_file("djikstra.txt");
     std::vector<std::pair<int, float>> *V = w_vector_pointer;
+    std::priority_queue<std::pair<float, int>,std::vector<std::pair<float, int>>,
+                        std::greater<std::pair<float, int>>> H;
     float dist[num_vertices];
     int pai[num_vertices];
     bool S[num_vertices];
@@ -448,8 +450,12 @@ void Graph::Djikstra(int initial, bool heap) {
         dist[i] = std::numeric_limits<float>::infinity();
     }
     dist[initial - 1] = 0;
+    if (heap) H.push(std::make_pair(0, (initial - 1)));
     while (std::all_of(S, S + num_vertices, [](bool elem) {return elem;}) == 0) {
-        int u = minDistance(dist, S, num_vertices);
+        int u;
+        u = (heap) ? H.top().second : minDistance(dist, S, num_vertices);
+        if (heap) H.pop();
+        if (S[u]) continue;
         S[u] = true;
         for (int j = 0; j < V[u].size(); j++) {
             int v = V[u][j].first;
@@ -459,6 +465,7 @@ void Graph::Djikstra(int initial, bool heap) {
             if (dist[(v-1)] > dist[u] + w) {
                 dist[(v-1)] = dist[u] + w;
                 pai[(v-1)] = (u+1);
+                H.push(std::make_pair(dist[(v-1)], v-1));
             }
         }
     }
