@@ -476,6 +476,38 @@ void Graph::Djikstra(int initial, bool heap) {
     output_file.close();
 }
 
+void Graph::FindShortestPath(int start_node, int target_node, bool use_heap) {
+    std::vector<int> shortest_path;
+    int current_node = target_node - 1;
+    float shortest_distance = Djikstra(start_node, use_heap);
+
+    if (std::isinf(shortest_distance)) {
+        // No path exists
+        std::cout << "No path exists from node " << start_node << " to node " << target_node << std::endl;
+    } else {
+        while (current_node != (start_node - 1)) {
+            shortest_path.push_back(current_node + 1);
+            current_node = tree[current_node].father - 1;
+        }
+        shortest_path.push_back(start_node);
+
+        // Reverse the path
+        std::reverse(shortest_path.begin(), shortest_path.end());
+
+        // Print the shortest path
+        std::cout << "Shortest Path from node " << start_node << " to node " << target_node << ": ";
+        for (int i = 0; i < shortest_path.size(); i++) {
+            std::cout << shortest_path[i];
+            if (i < shortest_path.size() - 1) {
+                std::cout << " -> ";
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
+
+
 void Graph::freeAll() {
     if (representation_type == 'm') {
         for (int i = 0; i < num_vertices; i++) {

@@ -39,6 +39,7 @@ class Graph {
         void ConnectedComponents();
 
         void Djikstra(int initial, bool heap=false);
+        void FindShortestPath(int start_node, int target_node, bool use_heap = false);
 
         void freeAll();
 };
