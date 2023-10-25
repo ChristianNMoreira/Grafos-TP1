@@ -428,7 +428,7 @@ int minDistance(float dist[], bool S[], int num_vertices){
     float min = std::numeric_limits<float>::infinity();
     int min_i;
     for (int i = 0; i < num_vertices; i++) {
-        if (S[i] == false && dist[i] <= min) {
+        if (S[i] == false && dist[i] < min) {
             min = dist[i];
             min_i = i;
         }
@@ -484,6 +484,7 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     std::reverse(shortest_path.begin(), shortest_path.end());
 
     // Save the shortest path to the output file
+    std::ofstream output_file("shortest_path.txt");
     for (int i = 0; i < shortest_path.size(); i++) {
         output_file << shortest_path[i] << " ";
     }
@@ -497,8 +498,8 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     output_file.close();
 }
 
-
 void Graph::freeAll() {
+    std::cout<<"\n...freeAll...\n";
     if (representation_type == 'm') {
         for (int i = 0; i < num_vertices; i++) {
             free(matrix_pointer[i]);
@@ -506,8 +507,11 @@ void Graph::freeAll() {
         free(matrix_pointer);
     }
     if (representation_type == 'v') {
-        if (weighted) delete[] w_vector_pointer;
+        if (weighted) {
+            std::vector<std::pair<int, float>> *V = w_vector_pointer;
+            delete[] V;
+        }
         else free(vector_pointer);
     }
-    free(markedArray);
+    if (weighted == false) free(markedArray);
 }
