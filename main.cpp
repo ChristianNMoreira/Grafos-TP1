@@ -9,8 +9,10 @@ int main() {
     //my_graph.BFS(1, 1, 0, 1, 1);
     //my_graph.DFS(1);
     //my_graph.Distance(1, 2);
-    my_graph.PrintRepresentation();
+    // my_graph.PrintRepresentation();
     // my_graph.Diametro();
+
+    my_graph.Djikstra(1);
 
     my_graph.freeAll();
     return 0;

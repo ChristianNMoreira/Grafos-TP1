@@ -424,26 +424,49 @@ void Graph::Diametro() {
     std::cout << "Diameter: " << maxDiameter << std::endl;
 }
 
+int minDistance(float dist[], bool S[], int num_vertices){ 
+    float min = std::numeric_limits<float>::infinity();
+    int min_i;
+    for (int i = 0; i < num_vertices; i++) {
+        if (S[i] == false && dist[i] <= min) {
+            min = dist[i];
+            min_i = i;
+        }
+    }
+    return min_i;
+}
+
 void Graph::Djikstra(int initial, bool heap) {
+    std::ofstream output_file("djikstra.txt");
     std::vector<std::pair<int, float>> *V = w_vector_pointer;
     float dist[num_vertices];
     int pai[num_vertices];
     bool S[num_vertices];
     for (int i = 0; i < num_vertices; i++) {
         S[i] = false;
+        pai[i] = 0;
         dist[i] = std::numeric_limits<float>::infinity();
     }
-    dist[initial] = 0;
-    while (! std::all_of(S, S + (sizeof(S)/sizeof(S[0])), [](bool elem) {return elem;})) {
-        int u = minDistance(dist, S);
+    dist[initial - 1] = 0;
+    while (std::all_of(S, S + num_vertices, [](bool elem) {return elem;}) == 0) {
+        int u = minDistance(dist, S, num_vertices);
         S[u] = true;
         for (int j = 0; j < V[u].size(); j++) {
             int v = V[u][j].first;
             float w = V[u][j].second;
             // Nó v é vizinho de (u+1)
-            if (dist[(v-1)] > dist[u] + w) dist[(v-1)] > dist[u] + w;
+            if ((w < 0) || (dist[u] < 0)) throw "Peso negativo!";
+            if (dist[(v-1)] > dist[u] + w) {
+                dist[(v-1)] = dist[u] + w;
+                pai[(v-1)] = (u+1);
+            }
         }
     }
+
+    for (int i = 0; i < num_vertices; i++) {
+        output_file<<(i+1)<<" "<<dist[i]<<" "<<pai[i]<<"\n";
+    }
+    output_file.close();
 }
 
 void Graph::freeAll() {
@@ -458,15 +481,4 @@ void Graph::freeAll() {
         else free(vector_pointer);
     }
     free(markedArray);
-}
-
-int minDistance(float dist[], bool S[]){ 
-    float min = std::numeric_limits<float>::infinity();
-    int min_i;
-    for (int i = 0; i < (sizeof(dist)/sizeof(dist[0])); i++) {
-        if (S[i] == false && dist[i] <= min)
-            min = dist[i];
-            min_i = i;
-    }
-    return min_i;
 }
