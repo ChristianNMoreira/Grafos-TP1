@@ -38,8 +38,7 @@ class Graph {
         int Distance(int initial, int final);
         void ConnectedComponents();
 
-        void Djikstra(int initial, bool heap=false);
-        void FindShortestPath(int start_node, int target_node, bool use_heap = false);
+        void Dijkstra(int start_node, int target_node, bool use_heap = false);
 
         void freeAll();
 };

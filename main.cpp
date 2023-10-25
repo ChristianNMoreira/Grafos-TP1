@@ -12,8 +12,7 @@ int main() {
     // my_graph.PrintRepresentation();
     // my_graph.Diametro();
 
-    my_graph.Djikstra(1, true);
-    my_graph.FindShortestPath(10, 20, true);
+    my_graph.Dijkstra(1, 3, true);
     my_graph.freeAll();
     return 0;
 }
