@@ -436,6 +436,8 @@ int minDistance(float dist[], bool S[], int num_vertices){
     return min_i;
 }
 
+
+
 void Graph::Djikstra(int initial, bool heap) {
     std::ofstream output_file("djikstra.txt");
     std::vector<std::pair<int, float>> *V = w_vector_pointer;
@@ -477,35 +479,59 @@ void Graph::Djikstra(int initial, bool heap) {
 }
 
 void Graph::FindShortestPath(int start_node, int target_node, bool use_heap) {
-    std::vector<int> shortest_path;
-    int current_node = target_node - 1;
-    float shortest_distance = Djikstra(start_node, use_heap);
-
-    if (std::isinf(shortest_distance)) {
-        // No path exists
-        std::cout << "No path exists from node " << start_node << " to node " << target_node << std::endl;
-    } else {
-        while (current_node != (start_node - 1)) {
-            shortest_path.push_back(current_node + 1);
-            current_node = tree[current_node].father - 1;
-        }
-        shortest_path.push_back(start_node);
-
-        // Reverse the path
-        std::reverse(shortest_path.begin(), shortest_path.end());
-
-        // Print the shortest path
-        std::cout << "Shortest Path from node " << start_node << " to node " << target_node << ": ";
-        for (int i = 0; i < shortest_path.size(); i++) {
-            std::cout << shortest_path[i];
-            if (i < shortest_path.size() - 1) {
-                std::cout << " -> ";
+    std::ofstream output_file("shortest_path.txt");
+    std::vector<std::pair<int, float>> *V = w_vector_pointer;
+    std::priority_queue<std::pair<float, int>, std::vector<std::pair<float, int>>,
+                        std::greater<std::pair<float, int>>> H;
+    float dist[num_vertices];
+    int pai[num_vertices];
+    bool S[num_vertices];
+    for (int i = 0; i < num_vertices; i++) {
+        S[i] = false;
+        pai[i] = 0;
+        dist[i] = std::numeric_limits<float>::infinity();
+    }
+    dist[start_node - 1] = 0;
+    if (use_heap) H.push(std::make_pair(0, (start_node - 1)));
+    while (std::all_of(S, S + num_vertices, [](bool elem) { return elem; }) == 0) {
+        int u;
+        u = (use_heap) ? H.top().second : minDistance(dist, S, num_vertices);
+        if (use_heap) H.pop();
+        if (S[u]) continue;
+        S[u] = true;
+        for (int j = 0; j < V[u].size(); j++) {
+            int v = V[u][j].first;
+            float w = V[u][j].second;
+            // Nó v é vizinho de (u+1)
+            if ((w < 0) || (dist[u] < 0)) throw "Peso negativo!";
+            if (dist[(v - 1)] > dist[u] + w) {
+                dist[(v - 1)] = dist[u] + w;
+                pai[(v - 1)] = (u + 1);
+                H.push(std::make_pair(dist[(v - 1)], v - 1));
             }
         }
-        std::cout << std::endl;
     }
-}
 
+    // Backtrack to construct the shortest path
+    std::vector<int> shortest_path;
+    int current_node = target_node - 1;
+    while (current_node != (start_node - 1)) {
+        shortest_path.push_back(current_node + 1);
+        current_node = pai[current_node] - 1;
+    }
+    shortest_path.push_back(start_node);
+
+    // Reverse the path
+    std::reverse(shortest_path.begin(), shortest_path.end());
+
+    // Save the shortest path to the output file
+    for (int i = 0; i < shortest_path.size(); i++) {
+        output_file << shortest_path[i] << " ";
+    }
+    output_file << std::endl;
+
+    output_file.close();
+}
 
 
 void Graph::freeAll() {
