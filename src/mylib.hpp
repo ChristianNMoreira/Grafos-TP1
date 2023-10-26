@@ -14,7 +14,7 @@ class Graph {
         bool weighted; 
         char** matrix_pointer;
         std::vector<int>* vector_pointer;
-        std::vector<std::pair<int,float>>* w_vector_pointer;
+        std::vector<std::vector<std::pair<int,float>>> w_vector_pointer;
         markedNode *tree;
         char* markedArray;
     public:

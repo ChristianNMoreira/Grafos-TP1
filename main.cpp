@@ -3,7 +3,7 @@
 #include <string>
 
 int main() {
-    Graph my_graph((std::string)"grafos_pesos_txt/rede_colaboracao.txt", 'v', true); // Cria a instância e atribue a uma variável // v=vetor, m=matriz
+    Graph my_graph((std::string)"grafos_pesos_txt/grafo_W_5.txt", 'v', true); // Cria a instância e atribue a uma variável // v=vetor, m=matriz
     //my_graph.CalculateGraphStats(); 
     //my_graph.ConnectedComponents();
     //my_graph.BFS(1, 1, 0, 1, 1);
@@ -12,7 +12,7 @@ int main() {
     // my_graph.PrintRepresentation();
     // my_graph.Diametro();
 
-    my_graph.Dijkstra(2722, 11365, true);
-    my_graph.freeAll();
+    my_graph.Dijkstra(10, 20, true);
+    // my_graph.freeAll();
     return 0;
 }
