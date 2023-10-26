@@ -437,7 +437,6 @@ int minDistance(float dist[], bool S[], int num_vertices){
 }
 
 void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
-    std::ofstream output_file("shortest_path.txt");
     std::ofstream output_file_dijkstra("dijkstra.txt");
     std::vector<std::pair<int, float>> *V = w_vector_pointer;
     std::priority_queue<std::pair<float, int>, std::vector<std::pair<float, int>>,
@@ -451,8 +450,8 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
         dist[i] = std::numeric_limits<float>::infinity();
     }
     dist[start_node - 1] = 0;
-    if (use_heap) H.push(std::make_pair(0, (start_node - 1)));
-    while (std::all_of(S, S + num_vertices, [](bool elem) { return elem; }) == 0) {
+    H.push(std::make_pair(0, (start_node - 1)));
+    while (!H.empty()) {
         int u;
         u = (use_heap) ? H.top().second : minDistance(dist, S, num_vertices);
         if (use_heap) H.pop();
@@ -466,7 +465,7 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
             if (dist[(v - 1)] > dist[u] + w) {
                 dist[(v - 1)] = dist[u] + w;
                 pai[(v - 1)] = (u + 1);
-                H.push(std::make_pair(dist[(v - 1)], v - 1));
+                if (!S[(v - 1)]) H.push(std::make_pair(dist[(v - 1)], v - 1));
             }
         }
     }
@@ -485,9 +484,12 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
 
     // Save the shortest path to the output file
     std::ofstream output_file("shortest_path.txt");
+    std::cout << target_node << "\n";
     for (int i = 0; i < shortest_path.size(); i++) {
         output_file << shortest_path[i] << " ";
+        std::cout << shortest_path[i] << " ";
     }
+    std::cout << "\n";
     for (int i = 0; i < num_vertices; i++) {
         output_file_dijkstra<<(i+1)<<" "<<dist[i]<<" "<<pai[i]<<"\n";
     }
