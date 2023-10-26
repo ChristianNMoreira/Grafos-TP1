@@ -445,6 +445,7 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     std::vector<int> pai(num_vertices, -1);
     std::vector<bool> S(num_vertices, false);
     dist[start_node - 1] = 0;
+    int count = 0;
 
     // Custom comparator for the priority queue (min heap)
     auto compare = [&](int u, int v) { return dist[u] > dist[v]; };
@@ -452,29 +453,56 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
 
     H.push(start_node - 1);
 
-    while (!H.empty()) {
-        int u = (use_heap) ? H.top() : minDistance(dist, S, num_vertices);
-        H.pop();
+    if (use_heap) {
+        while (!H.empty()) {
+            int u = H.top();
+            H.pop();
 
-        if (S[u]) continue;
-        S[u] = true;
+            if (S[u]) continue;
+            S[u] = true;
 
-        for (int j = 0; j < w_vector_pointer[u].size(); j++) {
-            int v = w_vector_pointer[u][j].first;
-            float w = w_vector_pointer[u][j].second;
+            for (int j = 0; j < w_vector_pointer[u].size(); j++) {
+                int v = w_vector_pointer[u][j].first;
+                float w = w_vector_pointer[u][j].second;
 
-            // v é filho de (u+1)
+                // v é filho de (u+1)
 
-            if (w < 0 || dist[u] < 0) {
-                throw "Peso negativo!";
+                if (w < 0 || dist[u] < 0) {
+                    throw "Peso negativo!";
+                }
+
+                if (dist[v - 1] > dist[u] + w) {
+                    dist[v - 1] = dist[u] + w;
+                    pai[v - 1] = u;
+
+                    if (!S[v - 1]) {
+                        H.push(v - 1);
+                    }
+                }
             }
+        }
+    }
+    else {
+        while (count < num_vertices) {
+            int u = minDistance(dist, S, num_vertices);
 
-            if (dist[v - 1] > dist[u] + w) {
-                dist[v - 1] = dist[u] + w;
-                pai[v - 1] = u;
+            if (S[u]) continue;
+            S[u] = true;
+            count++;
 
-                if (!S[v - 1]) {
-                    H.push(v - 1);
+            for (int j = 0; j < w_vector_pointer[u].size(); j++) {
+                int v = w_vector_pointer[u][j].first;
+                float w = w_vector_pointer[u][j].second;
+
+                // v é filho de (u+1)
+
+                if (w < 0 || dist[u] < 0) {
+                    throw "Peso negativo!";
+                }
+
+                if (dist[v - 1] > dist[u] + w) {
+                    dist[v - 1] = dist[u] + w;
+                    pai[v - 1] = u;
                 }
             }
         }
