@@ -426,7 +426,7 @@ void Graph::Diametro() {
     std::cout << "Diameter: " << maxDiameter << std::endl;
 }
 
-int minDistance(float dist[], bool S[], int num_vertices){ 
+int minDistance(std::vector<float> dist, std::vector<bool> S, int num_vertices){ 
     float min = std::numeric_limits<float>::infinity();
     int min_i;
     for (int i = 0; i < num_vertices; i++) {
@@ -453,7 +453,7 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     H.push(start_node - 1);
 
     while (!H.empty()) {
-        int u = H.top();
+        int u = (use_heap) ? H.top() : minDistance(dist, S, num_vertices);
         H.pop();
 
         if (S[u]) continue;
@@ -462,6 +462,8 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
         for (int j = 0; j < w_vector_pointer[u].size(); j++) {
             int v = w_vector_pointer[u][j].first;
             float w = w_vector_pointer[u][j].second;
+
+            // v é filho de (u+1)
 
             if (w < 0 || dist[u] < 0) {
                 throw "Peso negativo!";
