@@ -443,14 +443,14 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     // std::vector<std::pair<int, float>> V[num_vertices] = w_vector_pointer;
     std::priority_queue<std::pair<float, int>, std::vector<std::pair<float, int>>,
                         std::greater<std::pair<float, int>>> H;
-    std::cout<<"Definindo vetores de tamanho "<<num_vertices<<"\n";
-    std::cout<<"bool S[num_vertices];\n";
+    // std::cout<<"Definindo vetores de tamanho "<<num_vertices<<"\n";
+    // std::cout<<"bool S[num_vertices];\n";
     bool S[num_vertices];
-    std::cout<<"float dist[num_vertices];\n";
+    // std::cout<<"float dist[num_vertices];\n";
     float dist[num_vertices];
-    std::cout<<"int pai[num_vertices];\n";
+    // std::cout<<"int pai[num_vertices];\n";
     int pai[num_vertices];
-    std::cout<<"Preenchendo vetores de tamanho "<<num_vertices<<"\n";
+    // std::cout<<"Preenchendo vetores de tamanho "<<num_vertices<<"\n";
     for (int i = 0; i < num_vertices; i++) {
         S[i] = false;
         pai[i] = 0;
@@ -459,7 +459,7 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     dist[start_node - 1] = 0;
     H.push(std::make_pair(0, (start_node - 1)));
     while (!H.empty()) {
-        std::cout<<"Tamanho heap"<<H.size()<<"\n";
+        // std::cout<<"Tamanho heap"<<H.size()<<"\n";
         int u;
         u = (use_heap) ? H.top().second : minDistance(dist, S, num_vertices);
         if (use_heap) H.pop();
@@ -491,10 +491,13 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     std::reverse(shortest_path.begin(), shortest_path.end());
 
     // Save the shortest path to the output file
+    std::cout<<target_node<<"\n";
     std::ofstream output_file("shortest_path.txt");
     for (int i = 0; i < shortest_path.size(); i++) {
         output_file << shortest_path[i] << " ";
+        std::cout << shortest_path[i] << " ";
     }
+    std::cout << "\n\n";
     for (int i = 0; i < num_vertices; i++) {
         output_file_dijkstra<<(i+1)<<" "<<dist[i]<<" "<<pai[i]<<"\n";
     }
