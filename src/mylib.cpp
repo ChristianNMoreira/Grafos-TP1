@@ -60,8 +60,8 @@ void Graph::SetGraph(std::string filepath) {
     }
     else {  // vetor de adjacência
         if (weighted == 1) {
-            static std::vector<std::pair<int,float>> *V = new std::vector<std::pair<int,float>>[num_vertices];
-            w_vector_pointer = V;
+            std::vector<std::vector<std::pair<int,float>>> V;
+            V.resize(num_vertices);
             if (graph_file.is_open()) {
                 std::string line;
                 std::string s;
@@ -78,6 +78,7 @@ void Graph::SetGraph(std::string filepath) {
                     i = 0;
                     j = 0;
                 }
+                w_vector_pointer = V;
             }
         }
         else {
@@ -115,12 +116,12 @@ void Graph::PrintRepresentation() {
     }
     else {
         if (weighted == 1) {
-            std::vector<std::pair<int, float>> *V = w_vector_pointer;
+            // std::vector<std::pair<int, float>> V[num_vertices] = w_vector_pointer;
             for (int i = 0; i < num_vertices; i++) {
                 std::cout<<i+1<<" -> ";
-                for (int j = 0; j < V[i].size(); j++) {
-                    std::cout<<V[i][j].first<<"(";
-                    std::cout<<V[i][j].second<<") ";
+                for (int j = 0; j < w_vector_pointer[i].size(); j++) {
+                    std::cout<<w_vector_pointer[i][j].first<<"(";
+                    std::cout<<w_vector_pointer[i][j].second<<") ";
                 }
                 std::cout<<'\n'<<'\n';
             }
@@ -438,12 +439,17 @@ int minDistance(float dist[], bool S[], int num_vertices){
 
 void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     std::ofstream output_file_dijkstra("dijkstra.txt");
-    std::vector<std::pair<int, float>> *V = w_vector_pointer;
+    // std::vector<std::pair<int, float>> V[num_vertices] = w_vector_pointer;
     std::priority_queue<std::pair<float, int>, std::vector<std::pair<float, int>>,
                         std::greater<std::pair<float, int>>> H;
-    float dist[num_vertices];
-    int pai[num_vertices];
+    // std::cout<<"Definindo vetores de tamanho "<<num_vertices<<"\n";
+    // std::cout<<"bool S[num_vertices];\n";
     bool S[num_vertices];
+    // std::cout<<"float dist[num_vertices];\n";
+    float dist[num_vertices];
+    // std::cout<<"int pai[num_vertices];\n";
+    int pai[num_vertices];
+    // std::cout<<"Preenchendo vetores de tamanho "<<num_vertices<<"\n";
     for (int i = 0; i < num_vertices; i++) {
         S[i] = false;
         pai[i] = 0;
@@ -457,9 +463,9 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
         if (use_heap) H.pop();
         if (S[u]) continue;
         S[u] = true;
-        for (int j = 0; j < V[u].size(); j++) {
-            int v = V[u][j].first;
-            float w = V[u][j].second;
+        for (int j = 0; j < w_vector_pointer[u].size(); j++) {
+            int v = w_vector_pointer[u][j].first;
+            float w = w_vector_pointer[u][j].second;
             // Nó v é vizinho de (u+1)
             if ((w < 0) || (dist[u] < 0)) throw "Peso negativo!";
             if (dist[(v - 1)] > dist[u] + w) {
@@ -483,6 +489,7 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     std::reverse(shortest_path.begin(), shortest_path.end());
 
     // Save the shortest path to the output file
+    std::cout<<target_node<<"\n";
     std::ofstream output_file("shortest_path.txt");
     std::cout << target_node << "\n";
     for (int i = 0; i < shortest_path.size(); i++) {
@@ -509,11 +516,12 @@ void Graph::freeAll() {
         free(matrix_pointer);
     }
     if (representation_type == 'v') {
-        if (weighted) {
-            std::vector<std::pair<int, float>> *V = w_vector_pointer;
-            delete[] V;
-        }
-        else free(vector_pointer);
+        // if (weighted) {
+        //     std::vector<std::pair<int, float>> *V = w_vector_pointer;
+        //     delete[] V;
+        // }
+        // else free(vector_pointer);
+        free(vector_pointer);
     }
     if (weighted == false) free(markedArray);
 }
