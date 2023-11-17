@@ -11,7 +11,8 @@ struct markedNode {
 class Graph {
     private:
         char representation_type; // "m" -> matriz de adjacência; "v" -> vetor de adjacência
-        bool weighted; 
+        bool weighted;
+        bool directed;
         char** matrix_pointer;
         std::vector<int>* vector_pointer;
         std::vector<std::vector<std::pair<int,float>>> w_vector_pointer;
@@ -25,7 +26,7 @@ class Graph {
         int avg_degree;
         int median_degree;
 
-        Graph(std::string filepath, char rp='v', bool w=0);
+        Graph(std::string filepath, char rp='v', bool w=0, bool drc=0);
 
         void SetGraph(std::string filepath);
         void PrintRepresentation();

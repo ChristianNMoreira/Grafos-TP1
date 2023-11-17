@@ -15,7 +15,7 @@
 #include <limits>
 
 
-Graph::Graph(std::string filepath, char rp, bool w) {
+Graph::Graph(std::string filepath, char rp, bool w, bool drc) {
     if (w == 1) {
         representation_type = 'v';
         weighted = true;
@@ -24,6 +24,7 @@ Graph::Graph(std::string filepath, char rp, bool w) {
         representation_type = rp;
         weighted = false;
     }
+    directed = drc;
     SetGraph(filepath);
 };
 
@@ -75,7 +76,9 @@ void Graph::SetGraph(std::string filepath) {
                         (i == 0) ? i = stoi(s) : (j == 0) ? j = stoi(s) : k = stof(s);
                     }
                     V[i-1].push_back(std::make_pair(j, k));
-                    V[j-1].push_back(std::make_pair(i, k));
+                    if (directed == 0) {
+                        V[j-1].push_back(std::make_pair(i, k));
+                    }
                     i = 0;
                     j = 0;
                 }
