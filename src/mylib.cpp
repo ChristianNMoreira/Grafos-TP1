@@ -63,7 +63,7 @@ void Graph::SetGraph(std::string filepath) {
     }
     else {  // vetor de adjacência
         if (weighted == 1) {
-            std::vector<std::vector<std::tuple<int,float,float>>> V;
+            std::vector<std::vector<std::tuple<int,float,float,bool>>> V;
             V.resize(num_vertices);
             if (graph_file.is_open()) {
                 std::string line;
@@ -76,9 +76,9 @@ void Graph::SetGraph(std::string filepath) {
                     while (getline(ss, s, ' ')) {
                         (i == 0) ? i = stoi(s) : (j == 0) ? j = stoi(s) : k = stof(s);
                     }
-                    V[i-1].push_back(std::make_tuple(j, k, 0.0));
+                    V[i-1].push_back(std::make_tuple(j, k, 0.0, 1));
                     if (directed == 0) {
-                        V[j-1].push_back(std::make_tuple(i, k, 0.0));
+                        V[j-1].push_back(std::make_tuple(i, k, 0.0, 1));
                     }
                     i = 0;
                     j = 0;

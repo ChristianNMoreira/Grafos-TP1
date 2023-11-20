@@ -16,7 +16,7 @@ class Graph {
         bool directed;
         char** matrix_pointer;
         std::vector<int>* vector_pointer;
-        std::vector<std::vector<std::tuple<int,float,float>>> w_vector_pointer;
+        std::vector<std::vector<std::tuple<int,float,float,bool>>> w_vector_pointer;
         markedNode *tree;
         char* markedArray;
     public:
