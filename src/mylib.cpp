@@ -13,6 +13,7 @@
 #include <ctime>
 #include <utility>
 #include <limits>
+#include <tuple>
 
 
 Graph::Graph(std::string filepath, char rp, bool w, bool drc) {
@@ -62,7 +63,7 @@ void Graph::SetGraph(std::string filepath) {
     }
     else {  // vetor de adjacência
         if (weighted == 1) {
-            std::vector<std::vector<std::pair<int,float>>> V;
+            std::vector<std::vector<std::tuple<int,float,float>>> V;
             V.resize(num_vertices);
             if (graph_file.is_open()) {
                 std::string line;
@@ -75,9 +76,9 @@ void Graph::SetGraph(std::string filepath) {
                     while (getline(ss, s, ' ')) {
                         (i == 0) ? i = stoi(s) : (j == 0) ? j = stoi(s) : k = stof(s);
                     }
-                    V[i-1].push_back(std::make_pair(j, k));
+                    V[i-1].push_back(std::make_tuple(j, k, 0.0));
                     if (directed == 0) {
-                        V[j-1].push_back(std::make_pair(i, k));
+                        V[j-1].push_back(std::make_tuple(i, k, 0.0));
                     }
                     i = 0;
                     j = 0;
@@ -124,8 +125,8 @@ void Graph::PrintRepresentation() {
             for (int i = 0; i < num_vertices; i++) {
                 std::cout<<i+1<<" -> ";
                 for (int j = 0; j < w_vector_pointer[i].size(); j++) {
-                    std::cout<<w_vector_pointer[i][j].first<<"(";
-                    std::cout<<w_vector_pointer[i][j].second<<") ";
+                    std::cout<<std::get<0>(w_vector_pointer[i][j])<<"(";
+                    std::cout<<std::get<1>(w_vector_pointer[i][j])<<") ";
                 }
                 std::cout<<'\n'<<'\n';
             }
@@ -465,8 +466,8 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
             S[u] = true;
 
             for (int j = 0; j < w_vector_pointer[u].size(); j++) {
-                int v = w_vector_pointer[u][j].first;
-                float w = w_vector_pointer[u][j].second;
+                int v = std::get<0>(w_vector_pointer[u][j]);
+                float w = std::get<1>(w_vector_pointer[u][j]);
 
                 // v é filho de (u+1)
 
@@ -494,8 +495,8 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
             count++;
 
             for (int j = 0; j < w_vector_pointer[u].size(); j++) {
-                int v = w_vector_pointer[u][j].first;
-                float w = w_vector_pointer[u][j].second;
+                int v = std::get<0>(w_vector_pointer[u][j]);
+                float w = std::get<1>(w_vector_pointer[u][j]);
 
                 // v é filho de (u+1)
 
@@ -539,6 +540,12 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     output_file.close();
     output_file_dijkstra.close();
     output_file << std::endl;
+}
+
+void FordFulkerson(int source, int target) {
+    std::ofstream output_file("ford_fulkerson.txt");
+    
+    output_file.close();
 }
 
 void Graph::freeAll() {

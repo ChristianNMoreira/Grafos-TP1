@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <tuple>
 
 struct markedNode {
     char marked = '0';
@@ -15,7 +16,7 @@ class Graph {
         bool directed;
         char** matrix_pointer;
         std::vector<int>* vector_pointer;
-        std::vector<std::vector<std::pair<int,float>>> w_vector_pointer;
+        std::vector<std::vector<std::tuple<int,float,float>>> w_vector_pointer;
         markedNode *tree;
         char* markedArray;
     public:
@@ -40,6 +41,8 @@ class Graph {
         void ConnectedComponents();
 
         void Dijkstra(int start_node, int target_node, bool use_heap = false);
+
+        void FordFulkerson(int source, int target);
 
         void freeAll();
 };
