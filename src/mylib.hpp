@@ -17,7 +17,7 @@ class Graph {
         char** matrix_pointer;
         std::vector<std::vector<int>> vector_pointer;
         std::vector<std::vector<std::tuple<int,float,float,bool>>> w_vector_pointer;
-        markedNode *tree;
+        std::vector<markedNode> tree;
         char* markedArray;
     public:
         int num_vertices;

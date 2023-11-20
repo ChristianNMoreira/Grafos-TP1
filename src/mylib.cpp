@@ -233,7 +233,8 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
     std::queue<int> Q;
     int v;
     int max_level = 0;
-    struct markedNode *mN = new markedNode[num_vertices];
+    std::vector<markedNode> mN;
+    mN.resize(num_vertices);
     mN[initial - 1].marked = '1';
     if (update_array == 1) markedArray[initial - 1] = '1';
     mN[initial - 1].level = 0;
@@ -272,7 +273,6 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
                         if (final == (j+1)) {
                             output_file.close();
                             if (set_tree == 1) tree = mN;
-                            else delete[] mN;
                             return mN[j].level;
                         }
                     }
@@ -302,7 +302,6 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
                     if (final == w) {
                         output_file.close();
                         if (set_tree == 1) tree = mN;
-                        else delete[] mN;
                         return mN[w-1].level;
                     }
                 }
@@ -311,7 +310,6 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
     }
     output_file.close();
     if (set_tree == 1) tree = mN;
-    else delete[] mN;
     return max_level;
 }
 
@@ -396,7 +394,6 @@ void Graph::ConnectedComponents() {
     std::cout << " max: " << max_concomp;
     std::cout << " num: " << num_concomp;
     free(marked);
-    delete[] tree;
     output_file.close();
 }
  
