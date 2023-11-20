@@ -87,8 +87,8 @@ void Graph::SetGraph(std::string filepath) {
             }
         }
         else {
-            static std::vector<int> *V = new std::vector<int>[num_vertices];
-            vector_pointer = V;
+            std::vector<std::vector<int>> V;
+            V.resize(num_vertices);
             if (graph_file.is_open()) {
                 std::string line;
                 std::string s;
@@ -104,6 +104,7 @@ void Graph::SetGraph(std::string filepath) {
                     i = 0;
                 }
             }
+            vector_pointer = V;
         }
     }
     graph_file.close();
@@ -132,7 +133,7 @@ void Graph::PrintRepresentation() {
             }
         }
         else {
-            std::vector<int> *V = vector_pointer;
+            std::vector<std::vector<int>> V = vector_pointer;
             for (int i = 0; i < num_vertices; i++) {
                 std::cout<<i+1<<" -> ";
                 for (int j = 0; j < V[i].size(); j++) {
@@ -171,7 +172,7 @@ void Graph::CalculateGraphStats() {
         }
         num_edges /= 2;  // Dividir por 2, pois cada aresta foi contada duas vezes.
     } else {
-        std::vector<int> *V = vector_pointer;
+        std::vector<std::vector<int>> V = vector_pointer;
         for (int i = 0; i < num_vertices; i++) {
             int degree = V[i].size();
             num_edges += degree;
@@ -199,7 +200,7 @@ void Graph::CalculateGraphStats() {
             degrees.push_back(degree);
         }
     } else {
-        std::vector<int> *V = vector_pointer;
+        std::vector<std::vector<int>> V = vector_pointer;
         for (int i = 0; i < num_vertices; i++) {
             int degree = V[i].size();
             degrees.push_back(degree);
@@ -279,7 +280,7 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
             }
         }
         else {
-            std::vector<int> *V = vector_pointer;
+            std::vector<std::vector<int>> V = vector_pointer;
             for (int j = 0; j < V[v-1].size(); j++) {
                 int w = V[v-1][j];
                 // Nó w é vizinho de v
@@ -343,7 +344,7 @@ void Graph::DFS(int initial) {
                 }
             }
             else {
-                std::vector<int> *V = vector_pointer;
+                std::vector<std::vector<int>> V = vector_pointer;
                 for (int j = 0; j < V[v-1].size(); j++) {
                     int w = V[v-1][j];
                     // Nó w é vizinho de v
@@ -555,14 +556,6 @@ void Graph::freeAll() {
             free(matrix_pointer[i]);
         }
         free(matrix_pointer);
-    }
-    if (representation_type == 'v') {
-        // if (weighted) {
-        //     std::vector<std::pair<int, float>> *V = w_vector_pointer;
-        //     delete[] V;
-        // }
-        // else free(vector_pointer);
-        free(vector_pointer);
     }
     if (weighted == false) free(markedArray);
 }
