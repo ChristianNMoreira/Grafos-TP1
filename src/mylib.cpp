@@ -551,9 +551,48 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
     output_file << std::endl;
 }
 
-void FordFulkerson(int source, int target) {
+void Graph::CreateResidualGraph() {
+    for (int i = 0; i < num_vertices; i++) {
+        for (int j = 0; j < w_vector_pointer[i].size(); j++) {
+            std::vector<std::vector<std::tuple<int,float,float,bool>>> V;
+            V.resize(num_vertices);
+            V[i].push_back(std::make_tuple(std::get<0>(w_vector_pointer[i][j]),
+                                           std::get<1>(w_vector_pointer[i][j]),
+                                           std::get<1>(w_vector_pointer[i][j]) - std::get<2>(w_vector_pointer[i][j]), 1));
+            V[std::get<0>(w_vector_pointer[i][j])-1].push_back(std::make_tuple(i+1,
+                                                               std::get<1>(w_vector_pointer[i][j]),
+                                                               std::get<2>(w_vector_pointer[i][j]), 0));
+            residual_pointer = V;
+        }
+    }
+}
+
+void Graph::FordFulkerson(int source, int target) {
     std::ofstream output_file("ford_fulkerson.txt");
-    
+    CreateResidualGraph();
+    int b = BFS(source, false, target, true, false, true);
+    int i = target;
+    // adicionar loop que para quando não há mais caminhos
+    while (i != source) {
+        int j = 0;
+        bool loop = true;
+        while (loop) {
+            if (std::get<0>(residual_pointer[tree[i-1].father - 1][j]) == i) {
+                residual_pointer[tree[i-1].father - 1][j] = std::make_tuple(std::get<0>(residual_pointer[tree[i-1].father - 1][j]),
+                                                                            std::get<1>(residual_pointer[tree[i-1].father - 1][j]),
+                                                                            std::get<2>(residual_pointer[tree[i-1].father - 1][j]) - b,
+                                                                            std::get<3>(residual_pointer[tree[i-1].father - 1][j]));
+                residual_pointer[j][tree[i-1].father - 1] = std::make_tuple(std::get<0>(residual_pointer[j][tree[i-1].father - 1]),
+                                                                            std::get<1>(residual_pointer[j][tree[i-1].father - 1]),
+                                                                            std::get<2>(residual_pointer[j][tree[i-1].father - 1]) + b,
+                                                                            std::get<3>(residual_pointer[j][tree[i-1].father - 1]));
+                loop = false;
+            }
+            j += 1;
+            loop = ((j < residual_pointer[tree[i-1].father - 1].size()) && loop);
+        }
+        i = tree[i-1].father;
+    }
     output_file.close();
 }
 

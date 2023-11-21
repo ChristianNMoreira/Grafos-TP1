@@ -17,6 +17,7 @@ class Graph {
         char** matrix_pointer;
         std::vector<std::vector<int>> vector_pointer;
         std::vector<std::vector<std::tuple<int,float,float,bool>>> w_vector_pointer;
+        std::vector<std::vector<std::tuple<int,float,float,bool>>> residual_pointer;
         std::vector<markedNode> tree;
         char* markedArray;
     public:
@@ -42,6 +43,7 @@ class Graph {
 
         void Dijkstra(int start_node, int target_node, bool use_heap = false);
 
+        void CreateResidualGraph();
         void FordFulkerson(int source, int target);
 
         void freeAll();
