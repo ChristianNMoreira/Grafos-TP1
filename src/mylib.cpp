@@ -228,7 +228,7 @@ void Graph::CalculateGraphStats() {
     output_file.close();
 }
 
-int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool update_array) {
+int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool update_array, bool FF) {
     std::ofstream output_file("bfs.txt");
     std::queue<int> Q;
     int v;
@@ -280,12 +280,22 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
             }
         }
         else {
-            std::vector<std::vector<int>> V = vector_pointer;
-            for (int j = 0; j < V[v-1].size(); j++) {
-                int w = V[v-1][j];
+            int num_vizinhos, w;
+            int bottleneck = INT8_MAX;
+            (FF == 1) ? num_vizinhos = w_vector_pointer[v-1].size() : num_vizinhos = vector_pointer[v-1].size();
+            for (int j = 0; j < num_vizinhos; j++) {
+                int flow = 1;
+                if (FF == 1) {
+                    w = std::get<0>(w_vector_pointer[v-1][j]);
+                    flow = std::get<1>(w_vector_pointer[v-1][j]);
+                }
+                else {
+                    w = vector_pointer[v-1][j];
+                }
                 // Nó w é vizinho de v
-                if (mN[w-1].marked != '1') {
+                if ((mN[w-1].marked != '1') && !((FF == 1) && (flow <= 0))) {
                     Q.push(w);
+                    if (FF == 1) bottleneck = std::min(flow, bottleneck);
                     mN[w-1].marked = '1';
                     if (update_array == 1) markedArray[w-1] = '1';
                     mN[w-1].father = v;
@@ -302,6 +312,7 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
                     if (final == w) {
                         output_file.close();
                         if (set_tree == 1) tree = mN;
+                        if (FF == 1) return bottleneck;
                         return mN[w-1].level;
                     }
                 }
