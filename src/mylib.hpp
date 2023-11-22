@@ -7,6 +7,7 @@ struct markedNode {
     char marked = '0';
     int level = 0;
     int father = 0;
+    int father_node_edge = -1;
 };
 
 class Graph {
@@ -44,7 +45,8 @@ class Graph {
         void Dijkstra(int start_node, int target_node, bool use_heap = false);
 
         void CreateResidualGraph();
-        void FordFulkerson(int source, int target);
+        int Bottleneck(int source, int target);
+        int FordFulkerson(int source, int target);
 
         void freeAll();
 };

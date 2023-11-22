@@ -281,13 +281,12 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
         }
         else {
             int num_vizinhos, w;
-            int bottleneck = INT8_MAX;
-            (FF == 1) ? num_vizinhos = w_vector_pointer[v-1].size() : num_vizinhos = vector_pointer[v-1].size();
+            (FF == 1) ? num_vizinhos = residual_pointer[v-1].size() : num_vizinhos = vector_pointer[v-1].size();
             for (int j = 0; j < num_vizinhos; j++) {
                 int flow = 1;
                 if (FF == 1) {
-                    w = std::get<0>(w_vector_pointer[v-1][j]);
-                    flow = std::get<1>(w_vector_pointer[v-1][j]);
+                    w = std::get<0>(residual_pointer[v-1][j]);
+                    flow = std::get<2>(residual_pointer[v-1][j]);
                 }
                 else {
                     w = vector_pointer[v-1][j];
@@ -295,10 +294,10 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
                 // Nó w é vizinho de v
                 if ((mN[w-1].marked != '1') && !((FF == 1) && (flow <= 0))) {
                     Q.push(w);
-                    if (FF == 1) bottleneck = std::min(flow, bottleneck);
                     mN[w-1].marked = '1';
                     if (update_array == 1) markedArray[w-1] = '1';
                     mN[w-1].father = v;
+                    mN[w-1].father_node_edge = j;
                     mN[w-1].level = mN[v-1].level + 1;
                     if (mN[w-1].level > max_level) max_level = mN[w-1].level;
                     if (export_file == 1) {
@@ -312,7 +311,6 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
                     if (final == w) {
                         output_file.close();
                         if (set_tree == 1) tree = mN;
-                        if (FF == 1) return bottleneck;
                         return mN[w-1].level;
                     }
                 }
@@ -321,6 +319,7 @@ int Graph::BFS(int initial, bool export_file, int final, bool set_tree, bool upd
     }
     output_file.close();
     if (set_tree == 1) tree = mN;
+    if (final != 0) return -1;
     return max_level;
 }
 
@@ -552,9 +551,9 @@ void Graph::Dijkstra(int start_node, int target_node, bool use_heap) {
 }
 
 void Graph::CreateResidualGraph() {
+    std::vector<std::vector<std::tuple<int,float,float,bool>>> V;
     for (int i = 0; i < num_vertices; i++) {
         for (int j = 0; j < w_vector_pointer[i].size(); j++) {
-            std::vector<std::vector<std::tuple<int,float,float,bool>>> V;
             V.resize(num_vertices);
             V[i].push_back(std::make_tuple(std::get<0>(w_vector_pointer[i][j]),
                                            std::get<1>(w_vector_pointer[i][j]),
@@ -562,38 +561,103 @@ void Graph::CreateResidualGraph() {
             V[std::get<0>(w_vector_pointer[i][j])-1].push_back(std::make_tuple(i+1,
                                                                std::get<1>(w_vector_pointer[i][j]),
                                                                std::get<2>(w_vector_pointer[i][j]), 0));
-            residual_pointer = V;
         }
     }
+    residual_pointer = V;
 }
 
-void Graph::FordFulkerson(int source, int target) {
-    std::ofstream output_file("ford_fulkerson.txt");
-    CreateResidualGraph();
-    int b = BFS(source, false, target, true, false, true);
+int Graph::Bottleneck(int source, int target) {
+    int bottleneck = INT8_MAX;
+    int flow;
+    int level = BFS(source, false, target, true, false, true);
+    if (level == -1) return -1;
     int i = target;
-    // adicionar loop que para quando não há mais caminhos
     while (i != source) {
-        int j = 0;
-        bool loop = true;
-        while (loop) {
-            if (std::get<0>(residual_pointer[tree[i-1].father - 1][j]) == i) {
-                residual_pointer[tree[i-1].father - 1][j] = std::make_tuple(std::get<0>(residual_pointer[tree[i-1].father - 1][j]),
-                                                                            std::get<1>(residual_pointer[tree[i-1].father - 1][j]),
-                                                                            std::get<2>(residual_pointer[tree[i-1].father - 1][j]) - b,
-                                                                            std::get<3>(residual_pointer[tree[i-1].father - 1][j]));
-                residual_pointer[j][tree[i-1].father - 1] = std::make_tuple(std::get<0>(residual_pointer[j][tree[i-1].father - 1]),
-                                                                            std::get<1>(residual_pointer[j][tree[i-1].father - 1]),
-                                                                            std::get<2>(residual_pointer[j][tree[i-1].father - 1]) + b,
-                                                                            std::get<3>(residual_pointer[j][tree[i-1].father - 1]));
-                loop = false;
-            }
-            j += 1;
-            loop = ((j < residual_pointer[tree[i-1].father - 1].size()) && loop);
-        }
+        flow = std::get<2>(residual_pointer[tree[i-1].father - 1][tree[i-1].father_node_edge]);
+        bottleneck = std::min(flow, bottleneck);
         i = tree[i-1].father;
     }
+    return bottleneck;
+}
+
+int Graph::FordFulkerson(int source, int target) {
+    std::ofstream output_file("ford_fulkerson.txt");
+    CreateResidualGraph();
+    // std::cout<<"Grafo Residual: \n";
+    // for (int i = 0; i < num_vertices; i++) {
+    //     std::cout<<i+1<<" -> ";
+    //     for (int j = 0; j < residual_pointer[i].size(); j++) {
+    //         std::cout<<std::get<0>(residual_pointer[i][j])<<"(";
+    //         std::cout<<std::get<1>(residual_pointer[i][j])<<",";
+    //         std::cout<<std::get<2>(residual_pointer[i][j])<<",";
+    //         std::cout<<std::get<3>(residual_pointer[i][j])<<") ";
+    //     }
+    //     std::cout<<'\n';
+    // }
+    // std::cout<<"---------------\n";
+    int b = Bottleneck(source, target);
+    // std::cout<<"Arvore BFS: \n";
+    // for (int i = 0; i < num_vertices; i++) {
+    //     std::cout<<i+1<<" -> ";
+    //     std::cout<<tree[i].father;
+    //     std::cout<<'\n';
+    // }
+    // std::cout<<"---------------\n";
+    // std::cout<<"Gargalo: \n";
+    // std::cout<<b<<"\n";
+    // std::cout<<"---------------\n";
+    int f = INT8_MIN;
+    int i;
+    while (b != -1) {
+        i = target;
+        while (i != source) {
+            // std::cout<<"Nó iteração: \n";
+            // std::cout<<i<<"\n";
+            // std::cout<<"Pai: \n";
+            // std::cout<<tree[i-1].father<<"\n";
+            // std::cout<<"---------------\n";
+            std::get<2>(residual_pointer[tree[i-1].father - 1][tree[i-1].father_node_edge]) = std::get<2>(residual_pointer[tree[i-1].father - 1][tree[i-1].father_node_edge]) - b;
+            bool loop = true;
+            int j = 0;
+            while (loop) {
+                // encontra aresta do grafo residual de direção (i) -> (pai de i [no caminho encontrado pela BFS])
+                if (std::get<0>(residual_pointer[i-1][j]) == tree[i-1].father) {
+                    // aresta do nó i até seu pai
+                    std::get<2>(residual_pointer[i-1][j]) = std::get<2>(residual_pointer[i-1][j]) + b;
+                    loop = false;
+                }
+                j += 1;
+                loop = ((j < residual_pointer[i-1].size()) && loop);
+            }
+            i = tree[i-1].father;
+        }
+        f = std::max(f, b);
+        b = Bottleneck(source, target);
+        // std::cout<<"Grafo Residual: \n";
+        // for (int i = 0; i < num_vertices; i++) {
+        //     std::cout<<i+1<<" -> ";
+        //     for (int j = 0; j < residual_pointer[i].size(); j++) {
+        //         std::cout<<std::get<0>(residual_pointer[i][j])<<"(";
+        //         std::cout<<std::get<1>(residual_pointer[i][j])<<",";
+        //         std::cout<<std::get<2>(residual_pointer[i][j])<<",";
+        //         std::cout<<std::get<3>(residual_pointer[i][j])<<") ";
+        //     }
+        //     std::cout<<'\n';
+        // }
+        // std::cout<<"---------------\n";
+        // std::cout<<"Gargalo: \n";
+        // std::cout<<b<<"\n";
+        // std::cout<<"---------------\n";
+        // std::cout<<"Arvore BFS: \n";
+        // for (int i = 0; i < num_vertices; i++) {
+        //     std::cout<<i+1<<" -> ";
+        //     std::cout<<tree[i].father;
+        //     std::cout<<'\n';
+        // }
+        // std::cout<<"---------------\n";
+    }
     output_file.close();
+    return f;
 }
 
 void Graph::freeAll() {
