@@ -581,42 +581,20 @@ int Graph::Bottleneck(int source, int target) {
 }
 
 int Graph::FordFulkerson(int source, int target) {
-    std::ofstream output_file("ford_fulkerson.txt");
     CreateResidualGraph();
-    // std::cout<<"Grafo Residual: \n";
-    // for (int i = 0; i < num_vertices; i++) {
-    //     std::cout<<i+1<<" -> ";
-    //     for (int j = 0; j < residual_pointer[i].size(); j++) {
-    //         std::cout<<std::get<0>(residual_pointer[i][j])<<"(";
-    //         std::cout<<std::get<1>(residual_pointer[i][j])<<",";
-    //         std::cout<<std::get<2>(residual_pointer[i][j])<<",";
-    //         std::cout<<std::get<3>(residual_pointer[i][j])<<") ";
-    //     }
-    //     std::cout<<'\n';
-    // }
-    // std::cout<<"---------------\n";
     int b = Bottleneck(source, target);
-    // std::cout<<"Arvore BFS: \n";
-    // for (int i = 0; i < num_vertices; i++) {
-    //     std::cout<<i+1<<" -> ";
-    //     std::cout<<tree[i].father;
-    //     std::cout<<'\n';
-    // }
-    // std::cout<<"---------------\n";
-    // std::cout<<"Gargalo: \n";
-    // std::cout<<b<<"\n";
-    // std::cout<<"---------------\n";
-    int f = INT8_MIN;
+    int f = 0;
     int i;
     while (b != -1) {
         i = target;
         while (i != source) {
-            // std::cout<<"Nó iteração: \n";
-            // std::cout<<i<<"\n";
-            // std::cout<<"Pai: \n";
-            // std::cout<<tree[i-1].father<<"\n";
-            // std::cout<<"---------------\n";
+            int new_flow, edge_from, edge_to;
             std::get<2>(residual_pointer[tree[i-1].father - 1][tree[i-1].father_node_edge]) = std::get<2>(residual_pointer[tree[i-1].father - 1][tree[i-1].father_node_edge]) - b;
+            if (std::get<3>(residual_pointer[tree[i-1].father - 1][tree[i-1].father_node_edge]) == 0) {
+                new_flow = std::get<2>(residual_pointer[tree[i-1].father - 1][tree[i-1].father_node_edge]);
+                edge_from = std::get<0>(residual_pointer[tree[i-1].father - 1][tree[i-1].father_node_edge]);
+                edge_to = tree[i-1].father;
+            }
             bool loop = true;
             int j = 0;
             while (loop) {
@@ -624,37 +602,43 @@ int Graph::FordFulkerson(int source, int target) {
                 if (std::get<0>(residual_pointer[i-1][j]) == tree[i-1].father) {
                     // aresta do nó i até seu pai
                     std::get<2>(residual_pointer[i-1][j]) = std::get<2>(residual_pointer[i-1][j]) + b;
+                    if (std::get<3>(residual_pointer[i-1][j]) == 0) {
+                        new_flow = std::get<2>(residual_pointer[i-1][j]);
+                        edge_from = std::get<0>(residual_pointer[i-1][j]);
+                        edge_to = i;
+                    }
                     loop = false;
                 }
                 j += 1;
                 loop = ((j < residual_pointer[i-1].size()) && loop);
             }
+            loop = true;
+            j = 0;
+            while (loop) {
+                if (std::get<0>(w_vector_pointer[edge_from-1][j]) == edge_to) {
+                    std::get<2>(w_vector_pointer[edge_from-1][j]) = new_flow;
+                    loop = false;
+                }
+                j += 1;
+                loop = ((j < w_vector_pointer[edge_from-1].size()) && loop);
+            }
             i = tree[i-1].father;
         }
-        f = std::max(f, b);
         b = Bottleneck(source, target);
-        // std::cout<<"Grafo Residual: \n";
-        // for (int i = 0; i < num_vertices; i++) {
-        //     std::cout<<i+1<<" -> ";
-        //     for (int j = 0; j < residual_pointer[i].size(); j++) {
-        //         std::cout<<std::get<0>(residual_pointer[i][j])<<"(";
-        //         std::cout<<std::get<1>(residual_pointer[i][j])<<",";
-        //         std::cout<<std::get<2>(residual_pointer[i][j])<<",";
-        //         std::cout<<std::get<3>(residual_pointer[i][j])<<") ";
-        //     }
-        //     std::cout<<'\n';
-        // }
-        // std::cout<<"---------------\n";
-        // std::cout<<"Gargalo: \n";
-        // std::cout<<b<<"\n";
-        // std::cout<<"---------------\n";
-        // std::cout<<"Arvore BFS: \n";
-        // for (int i = 0; i < num_vertices; i++) {
-        //     std::cout<<i+1<<" -> ";
-        //     std::cout<<tree[i].father;
-        //     std::cout<<'\n';
-        // }
-        // std::cout<<"---------------\n";
+    }
+    for (int j = 0; j < residual_pointer[target-1].size(); j++) {
+        f += std::get<2>(residual_pointer[i][j]);
+    }
+    std::ofstream output_file("ford_fulkerson.txt");
+    for (int i = 0; i < num_vertices; i++) {
+        output_file<<i+1<<" -> ";
+        for (int j = 0; j < w_vector_pointer[i].size(); j++) {
+            output_file<<std::get<0>(w_vector_pointer[i][j])<<"(";
+            output_file<<std::get<1>(w_vector_pointer[i][j])<<",";
+            output_file<<std::get<2>(w_vector_pointer[i][j])<<",";
+            output_file<<std::get<3>(w_vector_pointer[i][j])<<") ";
+        }
+        output_file<<'\n';
     }
     output_file.close();
     return f;
